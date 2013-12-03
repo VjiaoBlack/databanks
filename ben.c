@@ -6,7 +6,9 @@ void design() {
     printf(" MYSTORE UI2 :: PBrooks :: Version 0.85                               5 Records \n");
     printf(XT_CH_NORMAL);
     printf("                                                      First: 2013-11-27 11:31:11\n");
-    printf("                                                      Last:  2013-11-27 12:11:41\n");
+    printf("[W/S] Scroll   [Enter] Edit   [N] New  [H] Help       Last:  2013-11-27 12:11:41\n");
+    printf("\n");
+    // start info here
 }
 
 int main() {
