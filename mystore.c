@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
             version,Usage);
         return 1;
     }
-
+    
     if (!readData()) {
         if (errmsg[0] != '\0')
             printf("|status: ERROR: %s|\n", errmsg);
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
             printf("|status: ERROR: Error reading mystore.dat\n\n%s|\n", Usage);
         return 1;
     }
-
+    
     if (command == ADD && !add(argv[2],argv[3])) {
         if (errmsg[0] != '\0')
             printf("|status: ERROR: %s|\n", errmsg);
@@ -94,11 +94,11 @@ int main(int argc, char *argv[]) {
             printf("|status: ERROR: Failure to add new item|\n");
         return 1;
     }
-
+    
     if (command == STAT) {
         stat();
     }
-
+    
     if (command == DISPLAY && !display(argv[2])) {
         if (errmsg[0] != '\0')
             printf("|status: ERROR: %s|\n", errmsg);
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
             printf("|status: ERROR: Cannot display %s|\n",argv[2]);
         return 1;
     }
-
+    
     if (command == DELETE && !delete(argv[2])) {
         if (errmsg[0] != '\0')
             printf("|status: ERROR: %s|\n", errmsg);
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
             printf("|status: ERROR: Cannot delete %s|\n", argv[2]);
         return 1;
     }
-
+    
     if (command == EDIT && !edit(argv[2])) {
         if (errmsg[0] != '\0')
             printf("|status: ERROR: %s|\n", errmsg);
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
             printf("|status: ERROR: cannot edit %s|\n",argv[2]);
         return 1;
     }
-
+    
     if (rewrite)
         if (!writeData()) {
             if (errmsg[0] != '\0')
@@ -131,8 +131,8 @@ int main(int argc, char *argv[]) {
                 printf("|status: ERROR: Could not write the data, file may be destroyed|\n");
             return 1;
         }
-
-
+    
+    
     return 0;
 }
 
@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
 // return FALSE if any problem with the command-line arguments
 int parseArgs(int argc, char *argv[]) {
     if (argc < 2) return FALSE;
-
+    
     // try zero-argument commands: list and stat
     if (argc == 2) {
         if (strcmp(argv[1], "stat") == 0) {
@@ -205,7 +205,7 @@ int parseArgs(int argc, char *argv[]) {
 // return TRUE if the string is a positive (>= 1) integer
 int isPositive(char *s) {
     char *p = s;
-    while (*p >= '0' && *p <= '9')
+    while (*p >= '0' && *p <= '9') 
         ++p;
     if (p != s && *p == '\0' && atoi(s) > 0)
         return TRUE;
@@ -218,17 +218,17 @@ int readData(void) {
     struct data current_data;
     struct carrier *current_carrier;
     struct carrier *previous_carrier;
-
+    
     FILE *fp = fopen("mystore.dat", "rb");  // read in binary file mode
     if (!fp)
         return TRUE;    // no such file, that's OK: we're doing this for the first time
-
+    
     if (fread(&nitems, sizeof(int), 1, fp) != 1) {  // try to read nitems
         fclose(fp);
         sprintf(errmsg, "Cannot read nitems");
         return FALSE;
     }
-
+    
     for (i = 0; i < nitems; ++i) {
         if (fread(&current_data, sizeof(struct data), 1, fp) != 1) { //try to read the next item
             fclose(fp);
@@ -248,7 +248,7 @@ int readData(void) {
             previous_carrier->next = current_carrier;
         previous_carrier = current_carrier;
     }
-
+    
     fclose(fp);
     last = current_carrier;
     return TRUE;
@@ -258,17 +258,17 @@ int readData(void) {
 int add(char *subject, char *body) {
     struct data current_data;
     struct carrier *current_carrier;
-
+    
     // fill up the members of current_data
     strncpy(current_data.theSubject, subject, 30);
     current_data.theSubject[30]='\0';
     strncpy(current_data.theBody, body, 140);
     current_data.theSubject[140] = '\0';
     current_data.theTime = time(NULL);
-
+    
     if ((current_carrier = calloc(1, sizeof(struct carrier))) == NULL) // allocate memory
         return FALSE;
-
+    
     current_carrier->theData = current_data;
     if (nitems == 0)
         first = last = current_carrier;
@@ -276,11 +276,11 @@ int add(char *subject, char *body) {
         last->next = current_carrier;
         last = current_carrier;
     }
-
+    
     ++nitems;
     rewrite = TRUE;
     printf("|status: OK|\n");
-
+    
     return TRUE;
 }
 
@@ -290,15 +290,15 @@ int edit(char *sn) {
     int i;
     struct carrier *ptr;
     struct data this_data;
-
+    
     if (n > nitems) {
         sprintf(errmsg, "Cannot edit item %d.  Item numbers range from 1 to %d",n,nitems);
         return FALSE;
     }
-
+    
     for (i = 1, ptr = first; i < n; ++i)
         ptr = ptr->next;
-
+    
     this_data = ptr->theData;
     strncpy(this_data.theSubject,subject,30);
     this_data.theSubject[30] = '\0';
@@ -306,30 +306,30 @@ int edit(char *sn) {
     this_data.theBody[140] = '\0';
     this_data.theTime = time(NULL);
     ptr->theData = this_data;
-
+    
     rewrite = TRUE;
     printf("|status: OK|\n");
     return TRUE;
 }
-
+    
 // ----------------------------------- writeData ---------------------------------
 int writeData(void) {
     int i;
     struct carrier *ptr;
     struct data this_data;
-
+    
     FILE *fp = fopen("mystore.dat", "wb");  // writing in binary
     if (!fp) {
         sprintf(errmsg, "Cannot open mystore.dat for writing.");
         return FALSE;
     }
-
+        
     if (fwrite(&nitems, sizeof(int), 1, fp) != 1) {
         fclose(fp);
         sprintf(errmsg, "Cannot write the nitems element");
         return FALSE;
     }
-
+    
     for (i = 0, ptr = first; i < nitems; ++i) {
         this_data = ptr->theData;
         if (fwrite(&this_data, sizeof(struct data), 1, fp) != 1) {
@@ -339,7 +339,7 @@ int writeData(void) {
         }
         ptr = ptr->next;
     }
-
+    
     fclose(fp);
     return TRUE;
 }
@@ -366,7 +366,7 @@ void stat(void) {
 }
 
 // ------------------------------------- rstrip ------------------------------
-// removes the trailing whitespace
+// removes the trailing whitespace 
 char *rstrip(char *s) {
     char *p = s + strlen(s) - 1;
     while ((*p == ' ' || *p == '\t' || *p == '\n') && p >= s)
@@ -382,15 +382,15 @@ int display(char *sn) {
     struct carrier *ptr;
     struct data this_data;
     struct tm *tp;
-
+    
     if (n > nitems) {
         sprintf(errmsg, "Cannot display item %d.  Item numbers range from 1 to %d",n,nitems);
         return FALSE;
     }
-
+    
     for (i = 1, ptr = first; i < n; ++i)
         ptr = ptr->next;
-
+    
     this_data = ptr->theData;
     printf("|status: OK|\n");
     printf("|item: %d|\n",n);
@@ -400,7 +400,7 @@ int display(char *sn) {
     //printf("|time: %s|\n",rstrip(ctime(&this_data.theTime)));
     printf("|subject: %s|\n",this_data.theSubject);
     printf("|body: %s|\n",this_data.theBody);
-
+    
     return TRUE;
 }
 
@@ -410,12 +410,12 @@ int delete(char *sn) {
     int i;
     struct carrier *ptr, *previous;
 
-
+    
     if (n > nitems) {
         sprintf(errmsg, "Cannot delete item %d.  Item numbers range from 1 to %d",n,nitems);
         return FALSE;
     }
-
+        
     previous = first;
     if (n == 1) {
         first = first->next;
@@ -429,7 +429,7 @@ int delete(char *sn) {
         previous->next = ptr->next;
         if (n == nitems) last = previous;
     }
-
+    
     --nitems;
     rewrite = TRUE;
     printf("|status: OK|\n");

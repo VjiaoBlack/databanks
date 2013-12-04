@@ -19,5 +19,8 @@ build/xterm_control.o: xterm/xterm_control.c
 build/ben.o: ben.c
 	$(COMPILE) ben.c -o build/ben.o
 
+build/victorsben.o: victorsben.c
+	$(COMPILE) victorsben.c -o build/victorsben.o
+
 build:
 	mkdir build
