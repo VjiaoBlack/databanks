@@ -70,8 +70,8 @@ void design() {
     printf("        Helpmenustuff help help menu menumenu stuff help help menu menu         \n");
     printf("        menu menu stuff help help menuu menu stuffmenu helpmenu stuffmenu       \n");
     printf("                                                                                \n");
-    printf("                                                                                \n");
-    printf("                                                                                \n");
+    printf("        Note: Pressing 'h' from the edit screen will bring u to the same        \n");
+    printf("              menu, but just scroll it to the edit section.                     \n");
     printf("                                                                                \n");
     printf("                                                                                \n");
     printf("                                                                                \n");
