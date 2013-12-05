@@ -39,7 +39,11 @@ void design() {
     printf("        7 Lorem ipsum dolor sit amet                                            \n");
     printf("        8 Ut enim                                                               \n");
     printf("        9 Duis aut  +--------------------------------------+                    \n");
-    printf("    >  10 Amet sit  | Amet sit dolor ipsum lorem           |                    \n");
+    printf("    >  10 Amet sit  | ");
+    printf(XT_CH_INVERSE);
+    printf("A");
+    printf(XT_CH_NORMAL);
+    printf("met sit dolor ipsum lorem           |                    \n");
     printf("             -Ut e  |                                      |  on ullamco        \n");
     printf("              labo  | Ut enim ad minim veniam, quis        |   Duis aute        \n");
     printf("              irur  | nostrud exercitation ullamco laboris |                    \n");
