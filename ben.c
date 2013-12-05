@@ -41,7 +41,7 @@ void ex2_scrolling() {
     printf(" MYSTORE :: PBrooks :: Version 0.90                                  25 Records \n");
     printf(XT_CH_NORMAL);
     printf("%s[W/S]%s Scroll   %s[N]%s New   %s[F]%s Find   %s[G]%s Go To         First: 2013-11-04 22:00:00\n", KEY_COLOR, KEY_COLOR, KEY_COLOR, KEY_COLOR);
-    printf("%s[Enter]%s Edit                        %s[H]%s Help           Last: 2013-11-04 22:00:00\n", KEY_COLOR, KEY_COLOR);
+    printf("%s[Enter]%s Edit             %s[H]%s Help   %s[Q]%s Quit           Last: 2013-11-04 22:00:00\n", KEY_COLOR, KEY_COLOR, KEY_COLOR);
     printf("\n");
     printf(XT_CH_CYAN);
     printf("   ID SUBJECT                                                TIME               \n");
