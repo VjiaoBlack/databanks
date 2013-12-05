@@ -129,11 +129,11 @@ void ex4_edit() {
     xt_par2(XT_SET_ROW_COL_POS, 8, 11);
     printf(" %s  %sSubject:%s %sLorem ipsum %s%sd%s%solor sit amet               %s        %s \n", XT_CH_NORMAL, XT_CH_YELLOW, XT_CH_DEFAULT, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE, XT_CH_NORMAL, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 9, 11);
-    printf(" %s   %sBody:%s   %sLorem ipsum dolor sit amet, consectetur adipis%s   %s \n", XT_CH_NORMAL, XT_CH_YELLOW, XT_CH_DEFAULT, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
+    printf(" %s   %sBody:%s   %sLorem ipsum dolor sit amet, consectetur adipisi%s  %s \n", XT_CH_NORMAL, XT_CH_YELLOW, XT_CH_DEFAULT, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 10, 11);
-    printf(" %s           %sicing elit, sed do eiusmod tempor incididunt u%s   %s \n", XT_CH_NORMAL, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
+    printf(" %s           %scing elit, sed do eiusmod tempor incididunt ut %s  %s \n", XT_CH_NORMAL, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 11, 11);
-    printf(" %s           %st labore et dolore magna aliqua.              %s   %s \n", XT_CH_NORMAL, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
+    printf(" %s           %slabore et dolore magna aliqua.                %s   %s \n", XT_CH_NORMAL, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 12, 11);
     printf(" %s                                                            %s \n", XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 13, 11);
