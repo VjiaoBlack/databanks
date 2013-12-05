@@ -1,8 +1,13 @@
 COMPILE=gcc -g -O2 -Wall -c
 LINK=gcc -g -O2 -Wall
 
+all: design victor mystore
+
 design: build build/keyboard.o build/xterm_control.o build/ben.o mystore
 	$(LINK) build/keyboard.o build/xterm_control.o build/ben.o -o ben
+
+victor: build build/keyboard.o build/xterm_control.o build/victorsben.o mystore
+	$(LINK) build/keyboard.o build/xterm_control.o build/victorsben.o -o victorsben
 
 mystore: build build/mystore.o
 	$(LINK) build/mystore.o -o mystore
