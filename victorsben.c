@@ -17,9 +17,9 @@ void design() {
     printf("              irure dolor in reprehenderit in voluptate.                        \n");
     printf("       11 Ut enim ad minim veniam, qui                                          \n");
     printf("       12 Duis aute irure dolor in rep                                          \n");
-    printf("       13 Ut enim ad minim veniam, qui      Enter: select                       \n");
-    printf("       14 Duis aute irure dolor in rep      Up/w: previous entry                \n");
-    printf("       15 Ut enim ad minim veniam, qui      Down/s: next entry                  \n");
+    printf("       13 Ut enim ad minim veniam, qui                                          \n");
+    printf("       14 Duis aute irure dolor in rep                                          \n");
+    printf("       15 Ut enim ad minim veniam, qui                                          \n");
     printf("       16 Duis aute irure dolor in rep      g: go to                            \n");
     printf("       17 Ut enim ad minim veniam, qui      f: find                             \n");
     printf("       18 Duis aute irure dolor in rep                                          \n");
@@ -50,7 +50,7 @@ void design() {
     printf("       11 Ut enim   | nisi ut aliquip ex ea commodo        |                    \n");
     printf("       12 Duis aut  | consequat. Duis aute irure dolor in  |                    \n");
     printf("       13 Ut enim   | reprehenderit in voluptate.          |                    \n");
-    printf("       14 aute fac  |                                      |  ry                \n");
+    printf("       14 aute fac  |                                      |                    \n");
     printf("       15 Ut enim   | Press h for Help          esc: cancel|                    \n");
     printf("       16 Duis aut  +--------------------------------------+                    \n");
     printf("       17 Ut enim                                                               \n");
