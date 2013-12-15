@@ -1,9 +1,9 @@
-#include "myui2.h"
+#include "util.h"
 
 extern struct NameValue *nvs; // pointer to namevalue pair structs
 extern int n_nvs; // number of namevalue pair structs
 
-extern char input[1000]; 
+extern char input[1000];
 extern int n_input;
 
 extern int nitems; //
@@ -24,8 +24,8 @@ int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
 
 	getkey_terminate(); // what does this do
 
-	if (pipe(mypipe) == -1) { 
-		strcpy(errmsg,"Problem with pipe creation"); 
+	if (pipe(mypipe) == -1) {
+		strcpy(errmsg,"Problem with pipe creation");
 		return 0;
 	}
 
@@ -88,7 +88,7 @@ int ParseInput(char *in, int n_in) {
 		return 0;
 
 	for (num_nvs = 0, p = in; *p; p++) { // goes through array of p until *p = 0
-		if (*p == '|') 
+		if (*p == '|')
 			num_nvs++;
 	}
 	num_nvs /= 2; // gets number of pairs
@@ -102,7 +102,7 @@ int ParseInput(char *in, int n_in) {
 
 		// start of name
 		nvs[i_nvs].name = p;
-		while (*p != ':') 
+		while (*p != ':')
 			p++;
 		*p++ = '\0';
 

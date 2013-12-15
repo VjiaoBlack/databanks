@@ -1,28 +1,37 @@
-COMPILE=gcc -g  -c
-LINK=gcc -g 
+COMPILE=gcc -g -O2 -Wall -c
+LINK=gcc -g -O2 -Wall
 
-all: myui2 mystore ben
+# General
 
-design: build build/keyboard.o build/xterm_control.o build/ben.o mystore
-	$(LINK) build/keyboard.o build/xterm_control.o build/ben.o -o ben
+all: mystore myui2
 
-mystore: build build/mystore.o
+clean:
+	rm -rf build mystore myui2
+
+build:
+	mkdir build
+
+# Link
+
+mystore: build/mystore.o
 	$(LINK) build/mystore.o -o mystore
 
-myui2: build/myui2.o build/myui2_util.o build/keyboard.o build/xterm_control.o
-	$(COMPILE) build/myui2.o build/myui2_util.o build/keyboard.o build/xterm_control.o -o myui2
-	
-build/myui2.o: myui2.c myui2.h
+myui2: build/keyboard.o build/xterm_control.o build/myui2.o build/util.o
+	$(LINK) build/keyboard.o build/xterm_control.o build/myui2.o build/util.o -o myui2
+
+# Compile
+
+build/mystore.o: build mystore.c
+	$(COMPILE) mystore.c -o build/mystore.o
+
+build/keyboard.o: build xterm/keyboard.c xterm/keyboard.h
+	$(COMPILE) xterm/keyboard.c -o build/keyboard.o
+
+build/xterm_control.o: build xterm/xterm_control.c xterm/xterm_control.h
+	$(COMPILE) xterm/xterm_control.c -o build/xterm_control.o
+
+build/myui2.o: build myui2.c myui2.h util.h
 	$(COMPILE) myui2.c -o build/myui2.o
 
-build/myui2_util.o: myui2_util.c myui2.h
-	$(COMPILE) myui2_util.c -o build/myui2_util.o
-	
-build/keyboard.o: xterm/keyboard.c xterm/keyboard.h
-	$(COMPILE) xterm/keyboard.c -o build/keyboard.o
-	
-build/xterm_control.o: xterm/xterm_control.c xterm/xterm_control.h
-	$(COMPILE) xterm/xterm_control.c -o build/xterm_control.o
-	
-build/mystore.o: mystore.c
-	$(COMPILE) mystore.c -o build/mystore.o
+build/util.o: build util.c util.h
+	$(COMPILE) util.c -o build/util.o

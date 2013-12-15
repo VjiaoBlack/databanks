@@ -6,6 +6,4 @@ build
 ben
 victorsben
 *.swp
-brooksfiles/*.o
-brooksfiles/myui2
-brooksfiles/mystore
+*.o

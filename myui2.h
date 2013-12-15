@@ -2,21 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "xterm/xterm_control.h"
 #include "xterm/keyboard.h"
+#include "util.h"
 
-#define TRUE	1
-#define FALSE	0
 #define ROWS 80
 #define COLS 24
 #define KEY_COLOR XT_CH_GREEN, XT_CH_DEFAULT
-
-
-struct NameValue {
-	char *name;
-	char *value;
-};
 
 struct StringPosition {
 	int row;
@@ -25,8 +19,6 @@ struct StringPosition {
 	char *name;
 };
 
-int ParseInput(char *in, int n_in);
-int ReadMystoreFromChild(char *argv1, char *argv2, char *argv3, char *argv4);
 void DisplayStat(void);
 void display(int mode);
 void clear(void);

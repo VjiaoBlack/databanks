@@ -27,8 +27,7 @@ char errmsg[80] = ""; // default to no error message
 void setup(void) {
     srand(time(NULL));
     setbuf(stdout, NULL); // Turn off stdout buffering
-    xt_par0(XT_CLEAR_SCREEN); 
-    load_rc(); //what does this do
+    xt_par0(XT_CLEAR_SCREEN);
 
     ReadMystoreFromChild("stat",NULL,NULL,NULL);
     ParseInput(input, n_input);
@@ -38,7 +37,7 @@ void setup(void) {
 void clear(void) {
     int r, c;
     for (r = 1; r <= ROWS; r++) {
-        SETPOS(r, 1);
+        xt_par2(XT_SET_ROW_COL_POS, r, 1);
         for (c = 1; c <= COLS; c++)
             putchar(' ');
     }
@@ -48,7 +47,7 @@ void clear(void) {
 void loop(void) {
     int mode = 0;
     int key;
-    while (TRUE) {
+    while (1) {
         while ((key = getkey()) == KEY_NOTHING);
         switch (key) {
             case KEY_F9:
@@ -60,6 +59,14 @@ void loop(void) {
         }
         display(mode);
     }
+}
+
+void print_id(char* id, int highlight) {
+    if (highlight)
+        printf("%s->%s %2s ", XT_CH_RED, XT_CH_YELLOW, id);
+    else
+        printf("%s   %2s ", XT_CH_YELLOW, id);
+    printf(XT_CH_DEFAULT);
 }
 
 /* displays the stuff */
@@ -91,12 +98,12 @@ static void finish(void) {
     getkey_terminate();
     xt_par0(XT_CLEAR_SCREEN);
     xt_par0(XT_CH_NORMAL);
-    SETPOS(1, 1);
+    xt_par2(XT_SET_ROW_COL_POS, 1, 1);
 }
 
 void DisplayStats(char *label, char *name) {
     int loc, /*col, i,*/j; // loc gives label pos in SP[]
-    //int instring = TRUE; //help what is this
+    //int instring = 1; //help what is this
     char *value;
 
     loc = FindStringPosition(label);
@@ -114,12 +121,12 @@ void DisplayStats(char *label, char *name) {
 }
 
 void DisplayAt(int row, int col, int maxlength, char *value) {
-    int i, instring = TRUE; //what is dis
+    int i, instring = 1; //what is dis
 
     xt_par2(XT_SET_ROW_COL_POS,row,col);
     for (i = 0; i < maxlength; i++) {
         if (value[i] == '\0')
-            instring = FALSE;
+            instring = 0;
         printf("%c",instring?value[i]:' ');
     }
 }
