@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <time.h>
 
 #include "xterm/xterm_control.h"
 #include "xterm/keyboard.h"
@@ -21,7 +20,6 @@ struct StringPosition {
 
 void DisplayStat(void);
 void display(int mode);
-void clear(void);
 void DisplayStats(char *label, char *name);
 void DisplayAt(int row, int col, int maxlength, char *s);
 int FindStringPosition(char *prompt);

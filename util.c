@@ -1,15 +1,15 @@
 #include "util.h"
 
-extern struct NameValue *nvs; // pointer to namevalue pair structs
-extern int n_nvs; // number of namevalue pair structs
+struct NameValue *nvs; // pointer to namevalue pair structs
+int n_nvs; // number of namevalue pair structs
 
-extern char input[1000];
-extern int n_input;
+char input[1000];
+int n_input;
 
-extern int nitems; //
-extern char subject[31]; // subject (might need modification)
-extern char body[141]; // body
-extern char errmsg[80]; // error message
+int nitems; //
+char subject[31]; // subject (might need modification)
+char body[141]; // body
+char errmsg[80]; // error message
 
 int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
 	int pid, mypipe[2], i; // mypipe = {read,write} | i = counter
