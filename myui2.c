@@ -95,12 +95,12 @@ static void finish(void) {
 }
 
 void DisplayStats(char *label, char *name) {
-    int loc, col, i, j; // loc gives label pos in SP[]
-    int instring = TRUE; //help what is this
+    int loc, /*col, i,*/j; // loc gives label pos in SP[]
+    //int instring = TRUE; //help what is this
     char *value;
 
     loc = FindStringPosition(label);
-    col = SP[loc].col;
+    //col = SP[loc].col;
 
     value = "";
     for (j = 0; j < n_nvs; ++j) {

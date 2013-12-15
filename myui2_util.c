@@ -41,7 +41,7 @@ int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
 		dup2(mypipe[1],STDOUT_FILENO); // connects "write-end" of parent's pipe to child's STDOUT
 
 		for (i = 2; i < 7; ++i) {
-			newarg[i] = NULL;
+			newargv[i] = NULL;
 		}
 
 		newargv[0] = newargv[1] = "./mystore"; // why do we need two?
@@ -55,7 +55,7 @@ int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
 		exit(0);
 	} else if (pid > 0) { // parent
 		char *s = input;
-		int c, i, n;
+		int c;//, i, n;
 		close(mypipe[1]); // close the parent's write pipe
 
 		// read data from read end of pipe into input array
@@ -99,7 +99,7 @@ int ParseInput(char *in, int n_in) {
 	for (i_nvs = 0, p = in; i_nvs < num_nvs; ++i_nvs) {
 		// until record
 		while (*p++ != '|');
-		
+
 		// start of name
 		nvs[i_nvs].name = p;
 		while (*p != ':') 
