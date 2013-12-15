@@ -7,7 +7,7 @@
     delete
 */
 
-#define version "0.90"
+#define version "0.91"
 #define author "PBrooks"
 
 #include <stdio.h>
@@ -263,7 +263,7 @@ int add(char *subject, char *body) {
     strncpy(current_data.theSubject, subject, 30);
     current_data.theSubject[30]='\0';
     strncpy(current_data.theBody, body, 140);
-    current_data.theSubject[140] = '\0';
+    current_data.theBody[140] = '\0';
     current_data.theTime = time(NULL);
     
     if ((current_carrier = calloc(1, sizeof(struct carrier))) == NULL) // allocate memory
