@@ -9,17 +9,19 @@
 
 #define ROWS 80
 #define COLS 24
-#define KEY_COLOR XT_CH_GREEN, XT_CH_DEFAULT
 
-struct StringPosition {
-	int row;
-	int col;
-	int length;
-	char *name;
-};
+#define HEADER_OFFSET 6
+#define BODY_OFFSET 9
 
-void DisplayStat(void);
-void display(int mode);
-void DisplayStats(char *label, char *name);
-void DisplayAt(int row, int col, int maxlength, char *s);
-int FindStringPosition(char *prompt);
+#define MODE_MAIN 0
+#define MODE_NEW 1
+#define MODE_FIND 2
+#define MODE_GOTO 3
+#define MODE_EDIT 4
+#define MODE_HELP 5
+
+void reset(void);
+void display(int);
+
+void display_header(void);
+void display_records(void);

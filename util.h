@@ -11,5 +11,12 @@ struct NameValue {
     char *value;
 };
 
+struct Record {
+    int id;
+    char *time;
+    char *subject;
+    char *body;
+};
+
 int ReadMystoreFromChild(char *argv1, char *argv2, char *argv3, char *argv4);
 int ParseInput(char *in, int n_in);
