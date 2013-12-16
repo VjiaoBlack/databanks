@@ -7,8 +7,8 @@
 #include "xterm/keyboard.h"
 #include "util.h"
 
-#define ROWS 80
-#define COLS 24
+#define ROWS 24
+#define COLS 80
 
 #define HEADER_OFFSET 6
 #define BODY_OFFSET 9

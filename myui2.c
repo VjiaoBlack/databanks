@@ -12,7 +12,7 @@ void setup(void) {
     setbuf(stdout, NULL);  // Turn off stdout buffering
     read_stat();
     records = malloc(n_records * sizeof(struct Record));
-    for (i = 1; i <= n_records; i++)
+    for (i = 0; i < n_records; i++)
         read_record(i);
 }
 
@@ -68,11 +68,11 @@ void read_record(int id) {
     struct Record record;
     char str_id[6];  // Basically the max number of digits in an record ID
 
-    sprintf(str_id, "%d", id);
+    sprintf(str_id, "%d", id + 1);
     ReadMystoreFromChild("display", str_id, NULL, NULL);
     ParseInput();
 
-    record.id = id;
+    record.id = id + 1;
     record.time = malloc((strlen(nvs[2].value) + 1) * sizeof(char));
     record.subject = malloc((strlen(nvs[3].value) + 1) * sizeof(char));
     record.body = malloc((strlen(nvs[4].value) + 1) * sizeof(char));
@@ -126,10 +126,10 @@ void display_records(void) {
 
     for (i = 0; i < n_records; i++) {
         record = &records[i];
-        xt_par2(XT_SET_ROW_COL_POS, row++, 1);
+        xt_par2(XT_SET_ROW_COL_POS, row, 1);
         print_id(record->id, i == selected);
         printf("%s", record->subject);
-        xt_par1(XT_SET_COL_POS, COLS - 20);
+        xt_par2(XT_SET_ROW_COL_POS, row++, COLS - 18);
         printf("%s", record->time);
         if (i == selected) {
             xt_par2(XT_SET_ROW_COL_POS, row++, BODY_OFFSET);
