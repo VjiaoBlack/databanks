@@ -1,15 +1,7 @@
 #include "util.h"
 
-struct NameValue *nvs; // pointer to namevalue pair structs
-int n_nvs; // number of namevalue pair structs
-
-char input[1000];
-int n_input;
-
-int nitems; //
-char subject[31]; // subject (might need modification)
-char body[141]; // body
-char errmsg[80]; // error message
+static char input[1001];
+static int n_input;
 
 int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
 	int pid, mypipe[2], i; // mypipe = {read,write} | i = counter
@@ -22,18 +14,18 @@ int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
 	n_nvs = 0; // reset global variables
 	n_input = 0;
 
-	getkey_terminate(); // what does this do
+	// getkey_terminate(); // this is problematic
 
 	if (pipe(mypipe) == -1) {
-		strcpy(errmsg,"Problem with pipe creation");
-		return 0;
+		printf("Problem with pipe creation");
+		exit(1);
 	}
 
 	pid = fork();
 
 	if (pid == -1) { // error
-		strcpy(errmsg, "Problem with forking");
-		return 0;
+		printf("Problem with forking");
+		exit(1);
 	}
 
 	if (pid == 0) { // child
@@ -44,17 +36,16 @@ int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
 			newargv[i] = NULL;
 		}
 
-		newargv[0] = newargv[1] = "./mystore"; // why do we need two?
-		newargv[2] = argv1;
-		newargv[3] = argv2;
-		newargv[4] = argv3;
-		newargv[5] = argv4;
-		newargv[6] = NULL;
+		newargv[0] = "./mystore";
+		newargv[1] = argv1;
+		newargv[2] = argv2;
+		newargv[3] = argv3;
+		newargv[4] = argv4;
+		newargv[5] = NULL;
 
-		execvp(newargv[0],newargv+1); // child executes arguments obtained from method input
+		execvp(newargv[0], newargv); // child executes arguments obtained from method input
 		exit(0);
 	} else if (pid > 0) { // parent
-		char *s = input;
 		int c;//, i, n;
 		close(mypipe[1]); // close the parent's write pipe
 
@@ -64,17 +55,17 @@ int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
 			printf("Parent cannot read from pipe\n");
 			exit(1);
 		}
-		for (n_input = 0; n_input < sizeof(input)-1; n_input++) {
+		for (n_input = 0; n_input < sizeof(input) - 1; n_input++) {
 			if ((c = getc(fpin)) == EOF) break;
-			*s++ = c;
+			input[n_input] = c;
 		}
-		input[n_input] = '\0'; //end string with nullbyte
+		input[n_input++] = '\0'; //end string with nullbyte
 	}
 
 	return n_input;
 }
 
-int ParseInput(char *in, int n_in) {
+int ParseInput() {
 	int num_nvs, i_nvs; // number of pairs and a counter
 	char *p;
 
@@ -84,19 +75,19 @@ int ParseInput(char *in, int n_in) {
 	nvs = NULL;
 	n_nvs = 0;
 
-	if (n_in < 7) // ??checks for authenticity??? input is n_input
+	if (n_input < 7) // input is n_input
 		return 0;
 
-	for (num_nvs = 0, p = in; *p; p++) { // goes through array of p until *p = 0
+	for (num_nvs = 0, p = input; *p; p++) { // goes through array of p until *p = 0
 		if (*p == '|')
 			num_nvs++;
 	}
 	num_nvs /= 2; // gets number of pairs
 
-	if ((nvs = calloc(num_nvs, sizeof(struct NameValue))) == NULL) // ??checks for error??
+	if ((nvs = calloc(num_nvs, sizeof(struct NameValue))) == NULL)
 		return 0;
 
-	for (i_nvs = 0, p = in; i_nvs < num_nvs; ++i_nvs) {
+	for (i_nvs = 0, p = input; i_nvs < num_nvs; ++i_nvs) {
 		// until record
 		while (*p++ != '|');
 

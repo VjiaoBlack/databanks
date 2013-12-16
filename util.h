@@ -18,5 +18,8 @@ struct Record {
     char *body;
 };
 
-int ReadMystoreFromChild(char *argv1, char *argv2, char *argv3, char *argv4);
-int ParseInput(char *in, int n_in);
+int ReadMystoreFromChild(char*, char*, char*, char*);
+int ParseInput();
+
+struct NameValue *nvs;
+int n_nvs;

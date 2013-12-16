@@ -20,8 +20,9 @@
 #define MODE_EDIT 4
 #define MODE_HELP 5
 
-void reset(void);
-void display(int);
+void read_stat(void);
+void read_record(int id);
 
+void reset(void);
 void display_header(void);
 void display_records(void);
