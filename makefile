@@ -16,8 +16,8 @@ build:
 mystore: build/mystore.o
 	$(LINK) build/mystore.o -o mystore
 
-myui2: build/keyboard.o build/xterm_control.o build/myui2.o build/util.o
-	$(LINK) build/keyboard.o build/xterm_control.o build/myui2.o build/util.o -o myui2
+myui2: build/keyboard.o build/xterm_control.o build/victorsmyui2.o build/util.o
+	$(LINK) build/keyboard.o build/xterm_control.o build/victorsmyui2.o build/util.o -o myui2
 
 # Compile
 
@@ -30,8 +30,8 @@ build/keyboard.o: build xterm/keyboard.c xterm/keyboard.h
 build/xterm_control.o: build xterm/xterm_control.c xterm/xterm_control.h
 	$(COMPILE) xterm/xterm_control.c -o build/xterm_control.o
 
-build/myui2.o: build myui2.c myui2.h util.h
-	$(COMPILE) myui2.c -o build/myui2.o
+build/victorsmyui2.o: build victorsmyui2.c myui2.h util.h
+	$(COMPILE) victorsmyui2.c -o build/victorsmyui2.o
 
 build/util.o: build util.c util.h
 	$(COMPILE) util.c -o build/util.o
