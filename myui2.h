@@ -35,3 +35,5 @@ void read_record(int id);
 void reset(void);
 void display_header(void);
 void display_records(void);
+void scroll_up(void);
+void scroll_down(void);

@@ -18,7 +18,7 @@ void setup(void) {
 
 /* Main menu loop. */
 void loop(void) {
-    int mode = MODE_MAIN;
+    // int mode = MODE_MAIN;
     int key;
 
     selected = 0;
@@ -28,6 +28,16 @@ void loop(void) {
     while (1) {
         while ((key = getkey()) == KEY_NOTHING);
         switch (key) {
+            case KEY_UP:
+            case 'w':
+                if (selected > 0)
+                    scroll_up();
+                break;
+            case KEY_DOWN:
+            case 's':
+                if (selected < n_records - 1)
+                    scroll_down();
+                break;
             case 'q':
                 return;  // Exit the loop and run finish()
         }
@@ -61,6 +71,8 @@ void read_stat(void) {
         strcpy(first_time, nvs[4].value);
         strcpy(last_time, nvs[5].value);
     }
+    else
+        first_time = last_time = NULL;
 }
 
 /* Read the output of "mystore display" for the given record into records. */
@@ -121,13 +133,17 @@ void display_header(void) {
     xt_par2(XT_SET_ROW_COL_POS, 2, 1);
     printf("%s[W/S]%s Scroll  %s[G]%s Go To     %s[F]%s Find  %s[N]%s New",
            KEY_COLOR, KEY_COLOR, KEY_COLOR, KEY_COLOR);
-    xt_par2(XT_SET_ROW_COL_POS, 2, COLS - FIRST_TIME_OFFSET);
-    printf("First: %s", first_time);
+    if (first_time != NULL) {
+        xt_par2(XT_SET_ROW_COL_POS, 2, COLS - FIRST_TIME_OFFSET);
+        printf("First: %s", first_time);
+    }
     xt_par2(XT_SET_ROW_COL_POS, 3, 1);
     printf("%s[Enter]%s Edit  %s[Del]%s Delete  %s[H]%s Help  %s[Q]%s Quit",
            KEY_COLOR, KEY_COLOR, KEY_COLOR, KEY_COLOR);
-    xt_par2(XT_SET_ROW_COL_POS, 3, COLS - LAST_TIME_OFFSET);
-    printf("Last: %s", last_time);
+    if (last_time != NULL) {
+        xt_par2(XT_SET_ROW_COL_POS, 3, COLS - LAST_TIME_OFFSET);
+        printf("Last: %s", last_time);
+    }
 
     // Draw the fifth line (table header)
     xt_par2(XT_SET_ROW_COL_POS, 5, 1);
@@ -138,23 +154,50 @@ void display_header(void) {
     xt_par0(XT_CH_DEFAULT);
 }
 
+/* Display a certain record by ID at the given row. Increases the row. */
+void display_record(int id, int* row) {
+    struct Record* record = &records[id];
+
+    xt_par2(XT_SET_ROW_COL_POS, *row, 1);
+    print_id(record->id, id == selected);
+    printf("%s", record->subject);
+    xt_par2(XT_SET_ROW_COL_POS, (*row)++, COLS - TIME_OFFSET);
+    printf("%s", record->time);
+    if (id == selected) {
+        xt_par2(XT_SET_ROW_COL_POS, (*row)++, BODY_OFFSET);
+        printf("%s", record->body);
+    }
+}
+
 /* Display all records. */
 void display_records(void) {
-    struct Record* record;
     int i, row = HEADER_OFFSET;
 
     for (i = 0; i < n_records; i++) {
-        record = &records[i];
-        xt_par2(XT_SET_ROW_COL_POS, row, 1);
-        print_id(record->id, i == selected);
-        printf("%s", record->subject);
-        xt_par2(XT_SET_ROW_COL_POS, row++, COLS - TIME_OFFSET);
-        printf("%s", record->time);
-        if (i == selected) {
-            xt_par2(XT_SET_ROW_COL_POS, row++, BODY_OFFSET);
-            printf("%s", record->body);
-        }
+        display_record(i, &row);
     }
+}
+
+/* Scroll the screen up one record. */
+void scroll_up(void) {
+    int row = HEADER_OFFSET + selected - 1;  // actual: num lines in body of old
+    xt_par2(XT_SET_ROW_COL_POS, row, 1);
+    xt_par1(XT_DELETE_LINES, 3);  // actual: 2 + num lines in body of old
+    xt_par1(XT_INSERT_LINES, 3);  // actual: 2 + num lines in body of new
+    selected--;
+    display_record(selected, &row);
+    display_record(selected + 1, &row);
+}
+
+/* Scroll the screen down one record. */
+void scroll_down(void) {
+    int row = HEADER_OFFSET + selected;
+    xt_par2(XT_SET_ROW_COL_POS, row, 1);
+    xt_par1(XT_DELETE_LINES, 3);  // actual: 2 + num lines in body of old
+    xt_par1(XT_INSERT_LINES, 3);  // actual: 2 + num lines in body of new
+    selected++;
+    display_record(selected - 1, &row);
+    display_record(selected, &row);
 }
 
 /* ----------------------------- MAIN FUNCTION ----------------------------- */
