@@ -4,8 +4,6 @@ static char input[1001];
 static int n_input;
 
 int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
-	
-
 	int pid, mypipe[2], i; // mypipe = {read,write} | i = counter
 	char *newargv[7];
 
@@ -15,8 +13,8 @@ int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
 	}
 	n_nvs = 0; // reset global variables
 	n_input = 0;
-	getkey_terminate();
 
+	getkey_terminate();
 
 	if (pipe(mypipe) == -1) {
 		printf("Problem with pipe creation");
