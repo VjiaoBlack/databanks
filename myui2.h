@@ -40,9 +40,13 @@ void read_record(int id);
 
 void reset(void);
 void display_header(void);
-void display_records(void);
+void display_records(int);
 void display_record(int, int*);
 void shift_up(void);
 void shift_down(void);
 void scroll_up(void);
 void scroll_down(void);
+
+void new_entry(void);
+void display_editbox(void);
+void clean_up_editbox(void);

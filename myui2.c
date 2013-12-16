@@ -1,7 +1,7 @@
 #include "myui2.h"
 
 static struct Record* records;
-static int n_records, selected, offset, min_shown, max_shown;
+static int n_records, selected, min_shown, max_shown;
 static char *version, *author, *first_time, *last_time;
 
 /* ---------------------- FUNCTIONS CALLED BY main() ----------------------- */
@@ -21,10 +21,10 @@ void loop(void) {
     // int mode = MODE_MAIN;
     int key;
 
-    selected = offset = 0;
+    selected = 0;
     reset();
     display_header();
-    display_records();
+    display_records(0);
     while (1) {
         while ((key = getkey()) == KEY_NOTHING);
         switch (key) {
@@ -37,6 +37,9 @@ void loop(void) {
             case 's':
                 if (selected < n_records - 1)
                     scroll_down();
+                break;
+            case 'n':
+                new_entry();
                 break;
             case 'q':
                 return;  // Exit the loop and run finish()
@@ -153,11 +156,11 @@ void display_header(void) {
 }
 
 /* Display all records. */
-void display_records(void) {
+void display_records(int start) {
     int i, row = HEADER_OFFSET;
 
-    min_shown = 0;
-    for (i = 0; i < n_records; i++) {
+    min_shown = start;
+    for (i = start; i < n_records; i++) {
         display_record(i, &row);
         if (row > ROWS - 2)
             break;
@@ -183,22 +186,20 @@ void display_record(int id, int* row) {
     }
 }
 
-/* Shift the screen of displayed records up, incrementing offset. */
+/* Shift the screen of displayed records up. */
 void shift_up(void) {
     int row = ROWS - 2;
 
-    offset++;
     xt_par2(XT_SET_ROW_COL_POS, HEADER_OFFSET, 1);
     xt_par1(XT_DELETE_LINES, 1);
     min_shown++;
     display_record(++max_shown, &row);
 }
 
-/* Shift the screen of displayed records down, decrementing offset. */
+/* Shift the screen of displayed records down. */
 void shift_down(void) {
     int row = HEADER_OFFSET;
 
-    offset--;
     xt_par2(XT_SET_ROW_COL_POS, ROWS - 2, 1);
     xt_par1(XT_DELETE_LINES, 1);
     max_shown--;
@@ -210,7 +211,7 @@ void shift_down(void) {
 /* Scroll the screen up one record. */
 void scroll_up(void) {
     struct Record *old = &records[selected], *new = &records[selected - 1];
-    int row = HEADER_OFFSET + selected - offset - 1, start = row;
+    int row = HEADER_OFFSET + selected - min_shown - 1, start = row;
 
     xt_par2(XT_SET_ROW_COL_POS, row, 1);
     xt_par1(XT_DELETE_LINES, 2 + old->body_lines);
@@ -225,7 +226,7 @@ void scroll_up(void) {
 /* Scroll the screen down one record. */
 void scroll_down(void) {
     struct Record *old = &records[selected], *new = &records[selected + 1];
-    int row = HEADER_OFFSET + selected - offset, start = row;
+    int row = HEADER_OFFSET + selected - min_shown, start = row;
 
     xt_par2(XT_SET_ROW_COL_POS, row, 1);
     xt_par1(XT_DELETE_LINES, 2 + old->body_lines);
@@ -235,6 +236,183 @@ void scroll_down(void) {
     display_record(selected, &row);
     if (start > MIN_SHIFT_DOWN_ROW && n_records > max_shown + 1)
         shift_up();
+}
+
+/* ----------------------------- NEW ENTRY CODE ---------------------------- */
+
+void new_entry(void) {
+    int key, cursorpos = 0;
+    int cursorr = 8, cursorc = 23;
+    int textpos = 0;
+    int subjpos = 0, bodypos = 0; // Where subject and body in text ends
+
+    char* subject = malloc(sizeof(char) * 31);
+    char* body = malloc(sizeof(char) * 141);
+
+    subject[0] = body[0] = '\0';
+
+    display_editbox();
+    xt_par2(XT_SET_ROW_COL_POS, 8, 23);
+    xt_par0(XT_CH_UNDERLINE);
+
+    while (1) {  // all the switching logic
+        while ((key = getkey()) == KEY_NOTHING);
+        switch (key) {
+            case KEY_ENTER:
+                ReadMystoreFromChild("add", subject, body, NULL);
+            case KEY_F5:
+                clean_up_editbox();
+                return;
+            case KEY_RIGHT:
+                if (cursorpos) {
+                    if (textpos >= bodypos)
+                        break;
+                }
+                else if (textpos >= subjpos)
+                    break;
+                if (cursorc > 68 && cursorr == 11)
+                    break;
+                else if (cursorc > 69 && cursorr < 11) {
+                    cursorc = 23;
+                    cursorr++;
+                    textpos++;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                }
+                else {
+                    cursorc++;
+                    textpos++;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                }
+                break;
+            case KEY_LEFT:
+                if (cursorc > 23) {
+                    cursorc--;
+                    textpos--;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                }
+                break;
+            case KEY_DOWN:
+                if (cursorpos == 0)
+                    xt_par2(XT_SET_ROW_COL_POS, 9, 23);
+                cursorpos = 1;
+                cursorr = 9;
+                cursorc = 23;
+                textpos = 0;
+                break;
+            case KEY_UP:
+                if (cursorpos == 1)
+                    xt_par2(XT_SET_ROW_COL_POS, 8, 23);
+                cursorpos = 0;
+                cursorr = 8;
+                cursorc = 23;
+                textpos = 0;
+                break;
+            case KEY_BACKSPACE:
+                if (cursorc > 23) {
+                    cursorc--;
+                    textpos--;
+                    if (cursorpos) {  // Body
+                        if (body[textpos+1] == '\0')
+                            body[textpos] = '\0';
+                        else
+                            body[textpos] = ' ';
+                        bodypos--;
+                    }
+                    else {  // Subject
+                        if (subject[textpos+1] == '\0')
+                            subject[textpos] = '\0';
+                        else
+                            subject[textpos] = ' ';
+                        subjpos--;
+                    }
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                    putchar(' ');
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                }
+                else if (cursorc == 23 && cursorr > 9) {
+                    textpos--;
+                    cursorc = 69;
+                    cursorr--;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                    putchar(' ');
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                }
+                break;
+            default:
+                if (cursorpos == 1) {
+                    if (cursorc > 68 && cursorr == 11)
+                        break;
+                    else if (cursorc > 69 && cursorr < 11) {
+                        cursorc = 23;
+                        cursorr++;
+                        xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                    }
+                }
+                if (cursorpos == 0 && cursorc > 52)
+                    break;
+                if (key >= ' ' && key <= '~') {
+                    putchar((char) key);
+                    cursorc++;
+                    textpos++;
+                    if (cursorpos) {  // Body
+                        if (body[textpos-1] == '\0')
+                            body[textpos] = '\0';
+                        body[textpos-1] = (char)key;
+                        bodypos++;
+                    }
+                    else {  // Subject
+                        if (subject[textpos-1] == '\0')
+                            subject[textpos] = '\0';
+                        subject[textpos-1] = (char)key;
+                        subjpos++;
+                    }
+                }
+                break;
+        }
+    }
+}
+
+/* Display the edit box. */
+void display_editbox(void) {
+    xt_par2(XT_SET_ROW_COL_POS, 6, 10);
+    printf(XT_CH_INVERSE);
+    printf("                        CREATE NEW ENTRY                        \n");
+    xt_par2(XT_SET_ROW_COL_POS, 7, 10);
+    printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 8, 10);
+    printf("  %s  %sSubject:%s %s                              %s                   %s  \n", XT_CH_NORMAL, XT_CH_YELLOW, XT_CH_DEFAULT, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 9, 10);
+    printf("  %s   %sBody:%s   %s                                               %s  %s  \n", XT_CH_NORMAL, XT_CH_YELLOW, XT_CH_DEFAULT, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 10, 10);
+    printf("  %s           %s                                               %s  %s  \n", XT_CH_NORMAL, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 11, 10);
+    printf("  %s           %s                                              %s   %s  \n", XT_CH_NORMAL, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 12, 10);
+    printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 13, 10);
+    printf("  %s     %s[Arrow Keys]%s Navigate   %s[Enter]%s Save   %s[F5]%s Cancel     %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 14, 10);
+    printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 15, 10);
+    printf("                                                                \n");
+    printf(XT_CH_NORMAL);
+}
+
+/* Clear the edit box and restore the previous state. */
+void clean_up_editbox(void) {
+    int offset;
+
+    read_stat();
+    selected = n_records - 1;
+    offset = selected - ROWS + HEADER_OFFSET + 3;
+    if (offset < 0)
+        offset = 0;
+    records = realloc(records, n_records * sizeof(struct Record));
+    read_record(selected);
+
+    reset();
+    display_header();
+    display_records(offset);
 }
 
 /* ----------------------------- MAIN FUNCTION ----------------------------- */
