@@ -9,6 +9,7 @@
 
 #define ROWS 24
 #define COLS 80
+#define MAX_BODY_LINE (COLS - BODY_OFFSET - TIME_OFFSET - 1)
 
 /* Column offsets */
 #define NAME_OFFSET 24
@@ -29,6 +30,7 @@
 #define MODE_EDIT 4
 #define MODE_HELP 5
 
+/* Function headers */
 void read_stat(void);
 void read_record(int id);
 

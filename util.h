@@ -16,6 +16,7 @@ struct Record {
     char *time;
     char *subject;
     char *body;
+    int body_lines;
 };
 
 int ReadMystoreFromChild(char*, char*, char*, char*);

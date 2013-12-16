@@ -48,9 +48,16 @@ void loop(void) {
 void finish(void) {
     reset();
     getkey_terminate();
+    // TODO: dealloc record data!
 }
 
 /* ----------------------- DATA RETRIEVAL FUNCTIONS ------------------------ */
+
+/* Copy source into what dest points to, mallocing enough space for dest. */
+void malloc_then_copy(char** dest, char* source) {
+    *dest = malloc((strlen(source) + 1) * sizeof(char));
+    strcpy(*dest, source);
+}
 
 /* Read the output of "mystore stat" into n_records, version, author,
    first_time, and last_time. */
@@ -58,18 +65,12 @@ void read_stat(void) {
     ReadMystoreFromChild("stat", NULL, NULL, NULL);
     ParseInput();
 
-    version = malloc((strlen(nvs[1].value) + 1) * sizeof(char));
-    author = malloc((strlen(nvs[2].value) + 1) * sizeof(char));
-
-    strcpy(version, nvs[1].value);
-    strcpy(author, nvs[2].value);
+    malloc_then_copy(&version, nvs[1].value);
+    malloc_then_copy(&author, nvs[2].value);
     n_records = atoi(nvs[3].value);
-
     if (n_records > 0) {
-        first_time = malloc((strlen(nvs[4].value) + 1) * sizeof(char));
-        last_time = malloc((strlen(nvs[5].value) + 1) * sizeof(char));
-        strcpy(first_time, nvs[4].value);
-        strcpy(last_time, nvs[5].value);
+        malloc_then_copy(&first_time, nvs[4].value);
+        malloc_then_copy(&last_time, nvs[5].value);
     }
     else
         first_time = last_time = NULL;
@@ -85,13 +86,10 @@ void read_record(int id) {
     ParseInput();
 
     record.id = id + 1;
-    record.time = malloc((strlen(nvs[2].value) + 1) * sizeof(char));
-    record.subject = malloc((strlen(nvs[3].value) + 1) * sizeof(char));
-    record.body = malloc((strlen(nvs[4].value) + 1) * sizeof(char));
-
-    strcpy(record.time, nvs[2].value);
-    strcpy(record.subject, nvs[3].value);
-    strcpy(record.body, nvs[4].value);
+    malloc_then_copy(&record.time, nvs[2].value);
+    malloc_then_copy(&record.subject, nvs[3].value);
+    malloc_then_copy(&record.body, nvs[4].value);
+    record.body_lines = (strlen(record.body) - 1) / MAX_BODY_LINE + 1;
 
     records[id] = record;
 }
@@ -157,6 +155,7 @@ void display_header(void) {
 /* Display a certain record by ID at the given row. Increases the row. */
 void display_record(int id, int* row) {
     struct Record* record = &records[id];
+    int i;
 
     xt_par2(XT_SET_ROW_COL_POS, *row, 1);
     print_id(record->id, id == selected);
@@ -164,8 +163,10 @@ void display_record(int id, int* row) {
     xt_par2(XT_SET_ROW_COL_POS, (*row)++, COLS - TIME_OFFSET);
     printf("%s", record->time);
     if (id == selected) {
-        xt_par2(XT_SET_ROW_COL_POS, (*row)++, BODY_OFFSET);
-        printf("%s", record->body);
+        for (i = 0; i < record->body_lines; i++) {
+            xt_par2(XT_SET_ROW_COL_POS, (*row)++, BODY_OFFSET);
+            printf("%.*s", MAX_BODY_LINE, record->body + (i * MAX_BODY_LINE));
+        }
     }
 }
 
@@ -180,10 +181,12 @@ void display_records(void) {
 
 /* Scroll the screen up one record. */
 void scroll_up(void) {
-    int row = HEADER_OFFSET + selected - 1;  // actual: num lines in body of old
+    struct Record *old = &records[selected], *new = &records[selected - 1];
+    int row = HEADER_OFFSET + selected - old->body_lines;
+
     xt_par2(XT_SET_ROW_COL_POS, row, 1);
-    xt_par1(XT_DELETE_LINES, 3);  // actual: 2 + num lines in body of old
-    xt_par1(XT_INSERT_LINES, 3);  // actual: 2 + num lines in body of new
+    xt_par1(XT_DELETE_LINES, 2 + old->body_lines);
+    xt_par1(XT_INSERT_LINES, 2 + new->body_lines);
     selected--;
     display_record(selected, &row);
     display_record(selected + 1, &row);
@@ -191,10 +194,12 @@ void scroll_up(void) {
 
 /* Scroll the screen down one record. */
 void scroll_down(void) {
+    struct Record *old = &records[selected], *new = &records[selected + 1];
     int row = HEADER_OFFSET + selected;
+
     xt_par2(XT_SET_ROW_COL_POS, row, 1);
-    xt_par1(XT_DELETE_LINES, 3);  // actual: 2 + num lines in body of old
-    xt_par1(XT_INSERT_LINES, 3);  // actual: 2 + num lines in body of new
+    xt_par1(XT_DELETE_LINES, 2 + old->body_lines);
+    xt_par1(XT_INSERT_LINES, 2 + new->body_lines);
     selected++;
     display_record(selected - 1, &row);
     display_record(selected, &row);
