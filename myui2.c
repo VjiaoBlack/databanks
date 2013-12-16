@@ -182,7 +182,7 @@ void display_records(void) {
 /* Scroll the screen up one record. */
 void scroll_up(void) {
     struct Record *old = &records[selected], *new = &records[selected - 1];
-    int row = HEADER_OFFSET + selected - old->body_lines;
+    int row = HEADER_OFFSET + selected - 1;
 
     xt_par2(XT_SET_ROW_COL_POS, row, 1);
     xt_par1(XT_DELETE_LINES, 2 + old->body_lines);
