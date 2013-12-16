@@ -119,13 +119,13 @@ void display_header(void) {
 
     // Draw the second and third lines (help info and first/last edit times)
     xt_par2(XT_SET_ROW_COL_POS, 2, 1);
-    printf("%s[W/S]%s Scroll   %s[N]%s New   %s[F]%s Find   %s[G]%s Go To",
+    printf("%s[W/S]%s Scroll  %s[G]%s Go To     %s[F]%s Find  %s[N]%s New",
            KEY_COLOR, KEY_COLOR, KEY_COLOR, KEY_COLOR);
     xt_par2(XT_SET_ROW_COL_POS, 2, COLS - FIRST_TIME_OFFSET);
     printf("First: %s", first_time);
     xt_par2(XT_SET_ROW_COL_POS, 3, 1);
-    printf("%s[Enter]%s Edit             %s[H]%s Help   %s[Q]%s Quit",
-           KEY_COLOR, KEY_COLOR, KEY_COLOR);
+    printf("%s[Enter]%s Edit  %s[Del]%s Delete  %s[H]%s Help  %s[Q]%s Quit",
+           KEY_COLOR, KEY_COLOR, KEY_COLOR, KEY_COLOR);
     xt_par2(XT_SET_ROW_COL_POS, 3, COLS - LAST_TIME_OFFSET);
     printf("Last: %s", last_time);
 
