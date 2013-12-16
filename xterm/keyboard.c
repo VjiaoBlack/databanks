@@ -41,6 +41,7 @@ static struct circular_buffer {
 
 static struct termios oldt;
 static int oldf;
+static int init = FALSE;
 
 int getkey(void) {
 	struct termios newt;
@@ -79,7 +80,6 @@ int getkey(void) {
 
 	static int ncodes = sizeof(code_sets)/sizeof(code_sets[0]);
 	
-	static int init = FALSE;
 	
 	// turn ECHOing off, NONBLOCKing on
 	if (!init) {
@@ -129,10 +129,26 @@ int getkey(void) {
 
 // you MUST call this when you're done with keyboard processing, before you terminate
 void getkey_terminate(void) {
-	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-	fcntl(STDIN_FILENO, F_SETFL, oldf);
+	if (init) {
+		tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+		fcntl(STDIN_FILENO, F_SETFL, oldf);
+		init = FALSE;
+	}
 }
+
+// Resume ECHOing-off and NON-BLOCKing after fork() and pipe...
+void echo_off_nonblocking(void) {
+	struct termios dt;
+	int fc;
 	
+	tcgetattr(STDIN_FILENO, &dt);
+	dt.c_lflag &= ~(ICANON | ECHO);
+	tcsetattr(STDIN_FILENO, TCSANOW, &dt);
+	fc = fcntl(STDIN_FILENO, F_GETFL, 0);
+	fcntl(STDIN_FILENO, F_SETFL, fc | O_NONBLOCK);
+}
+
+		
 // Return TRUE if the string scode is at the beginning of the string s
 static int isBeginningOf(char *s, char *scode) {
 	while (*scode) {

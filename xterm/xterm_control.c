@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "xterm_control.h"
 
-void xt_par0(char *control_sequence) { 
-	printf("%s",control_sequence); 
+void xt_par0(char *control_sequence) {
+	printf("%s",control_sequence);
 }
 
 void xt_par1(char *control_sequence, int parameter1) {

@@ -28,5 +28,4 @@
 
 int getkey(void);
 void getkey_terminate(void);
-
-
+void echo_off_nonblocking(void);
