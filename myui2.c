@@ -1,7 +1,7 @@
 #include "myui2.h"
 
 static struct Record* records;
-static int n_records, selected;
+static int n_records, selected, offset, min_shown, max_shown;
 static char *version, *author, *first_time, *last_time;
 
 /* ---------------------- FUNCTIONS CALLED BY main() ----------------------- */
@@ -21,7 +21,7 @@ void loop(void) {
     // int mode = MODE_MAIN;
     int key;
 
-    selected = 0;
+    selected = offset = 0;
     reset();
     display_header();
     display_records();
@@ -152,6 +152,19 @@ void display_header(void) {
     xt_par0(XT_CH_DEFAULT);
 }
 
+/* Display all records. */
+void display_records(void) {
+    int i, row = HEADER_OFFSET;
+
+    min_shown = 0;
+    for (i = 0; i < n_records; i++) {
+        display_record(i, &row);
+        if (row > ROWS - 2)
+            break;
+    }
+    max_shown = i;
+}
+
 /* Display a certain record by ID at the given row. Increases the row. */
 void display_record(int id, int* row) {
     struct Record* record = &records[id];
@@ -170,19 +183,34 @@ void display_record(int id, int* row) {
     }
 }
 
-/* Display all records. */
-void display_records(void) {
-    int i, row = HEADER_OFFSET;
+/* Shift the screen of displayed records up, incrementing offset. */
+void shift_up(void) {
+    int row = ROWS - 2;
 
-    for (i = 0; i < n_records; i++) {
-        display_record(i, &row);
-    }
+    offset++;
+    xt_par2(XT_SET_ROW_COL_POS, HEADER_OFFSET, 1);
+    xt_par1(XT_DELETE_LINES, 1);
+    min_shown++;
+    display_record(++max_shown, &row);
+}
+
+/* Shift the screen of displayed records down, decrementing offset. */
+void shift_down(void) {
+    int row = HEADER_OFFSET;
+
+    offset--;
+    xt_par2(XT_SET_ROW_COL_POS, ROWS - 2, 1);
+    xt_par1(XT_DELETE_LINES, 1);
+    max_shown--;
+    xt_par2(XT_SET_ROW_COL_POS, row, 1);
+    xt_par1(XT_INSERT_LINES, 1);
+    display_record(--min_shown, &row);
 }
 
 /* Scroll the screen up one record. */
 void scroll_up(void) {
     struct Record *old = &records[selected], *new = &records[selected - 1];
-    int row = HEADER_OFFSET + selected - 1;
+    int row = HEADER_OFFSET + selected - offset - 1, start = row;
 
     xt_par2(XT_SET_ROW_COL_POS, row, 1);
     xt_par1(XT_DELETE_LINES, 2 + old->body_lines);
@@ -190,12 +218,14 @@ void scroll_up(void) {
     selected--;
     display_record(selected, &row);
     display_record(selected + 1, &row);
+    if (start < MAX_SHIFT_UP_ROW && min_shown > 0)
+        shift_down();
 }
 
 /* Scroll the screen down one record. */
 void scroll_down(void) {
     struct Record *old = &records[selected], *new = &records[selected + 1];
-    int row = HEADER_OFFSET + selected;
+    int row = HEADER_OFFSET + selected - offset, start = row;
 
     xt_par2(XT_SET_ROW_COL_POS, row, 1);
     xt_par1(XT_DELETE_LINES, 2 + old->body_lines);
@@ -203,6 +233,8 @@ void scroll_down(void) {
     selected++;
     display_record(selected - 1, &row);
     display_record(selected, &row);
+    if (start > MIN_SHIFT_DOWN_ROW && n_records > max_shown + 1)
+        shift_up();
 }
 
 /* ----------------------------- MAIN FUNCTION ----------------------------- */

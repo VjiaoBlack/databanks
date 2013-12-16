@@ -9,7 +9,6 @@
 
 #define ROWS 24
 #define COLS 80
-#define MAX_BODY_LINE (COLS - BODY_OFFSET - TIME_OFFSET - 1)
 
 /* Column offsets */
 #define NAME_OFFSET 24
@@ -21,6 +20,11 @@
 
 /* Row offsets */
 #define HEADER_OFFSET 6
+
+/* Other limits */
+#define MAX_BODY_LINE (COLS - BODY_OFFSET - TIME_OFFSET - 1)
+#define MAX_SHIFT_UP_ROW (HEADER_OFFSET + 5)
+#define MIN_SHIFT_DOWN_ROW (ROWS - 9)
 
 /* Display modes */
 #define MODE_MAIN 0
@@ -37,5 +41,8 @@ void read_record(int id);
 void reset(void);
 void display_header(void);
 void display_records(void);
+void display_record(int, int*);
+void shift_up(void);
+void shift_down(void);
 void scroll_up(void);
 void scroll_down(void);
