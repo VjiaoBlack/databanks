@@ -93,6 +93,8 @@ void read_record(int id) {
     malloc_then_copy(&record.subject, nvs[3].value);
     malloc_then_copy(&record.body, nvs[4].value);
     record.body_lines = (strlen(record.body) - 1) / MAX_BODY_LINE + 1;
+    if (record.body_lines < 0)
+        record.body_lines = 0;
 
     records[id] = record;
 }
