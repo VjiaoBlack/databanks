@@ -105,17 +105,36 @@ void print_id(int id, int highlight) {
 /* Display the header with the version, record count, times, and help. */
 #define KEY_COLOR XT_CH_GREEN, XT_CH_DEFAULT
 void display_header(void) {
+    int len = strlen(author) + strlen(version) + NAME_OFFSET, i;
+
+    // Draw the first line (program name, author, version, number of records)
     xt_par2(XT_SET_ROW_COL_POS, 1, 1);
     xt_par0(XT_CH_INVERSE);
-    printf(" MYSTORE :: PBrooks :: Version 0.90                                   5 Records ");
+    printf(" MYSTORE :: %s :: Version %s", author, version);
+    // Make sure that the white top bar fills the width of the row
+    for (i = len; i < COLS - NUM_RECORDS_OFFSET; i++)
+        putchar(' ');
+    printf("%6d Records ", n_records);
     xt_par0(XT_CH_NORMAL);
+
+    // Draw the second and third lines (help info and first/last edit times)
     xt_par2(XT_SET_ROW_COL_POS, 2, 1);
-    printf("%s[W/S]%s Scroll   %s[N]%s New   %s[F]%s Find   %s[G]%s Go To         First: 2013-11-04 20:36:55", KEY_COLOR, KEY_COLOR, KEY_COLOR, KEY_COLOR);
+    printf("%s[W/S]%s Scroll   %s[N]%s New   %s[F]%s Find   %s[G]%s Go To",
+           KEY_COLOR, KEY_COLOR, KEY_COLOR, KEY_COLOR);
+    xt_par2(XT_SET_ROW_COL_POS, 2, COLS - FIRST_TIME_OFFSET);
+    printf("First: %s", first_time);
     xt_par2(XT_SET_ROW_COL_POS, 3, 1);
-    printf("%s[Enter]%s Edit             %s[H]%s Help   %s[Q]%s Quit           Last: 2013-11-04 21:10:10", KEY_COLOR, KEY_COLOR, KEY_COLOR);
+    printf("%s[Enter]%s Edit             %s[H]%s Help   %s[Q]%s Quit",
+           KEY_COLOR, KEY_COLOR, KEY_COLOR);
+    xt_par2(XT_SET_ROW_COL_POS, 3, COLS - LAST_TIME_OFFSET);
+    printf("Last: %s", last_time);
+
+    // Draw the fifth line (table header)
     xt_par2(XT_SET_ROW_COL_POS, 5, 1);
     xt_par0(XT_CH_CYAN);
-    printf("   ID SUBJECT                                                TIME               ");
+    printf("   ID SUBJECT");
+    xt_par2(XT_SET_ROW_COL_POS, 5, COLS - TIME_OFFSET);
+    printf("TIME");
     xt_par0(XT_CH_DEFAULT);
 }
 
@@ -129,7 +148,7 @@ void display_records(void) {
         xt_par2(XT_SET_ROW_COL_POS, row, 1);
         print_id(record->id, i == selected);
         printf("%s", record->subject);
-        xt_par2(XT_SET_ROW_COL_POS, row++, COLS - 18);
+        xt_par2(XT_SET_ROW_COL_POS, row++, COLS - TIME_OFFSET);
         printf("%s", record->time);
         if (i == selected) {
             xt_par2(XT_SET_ROW_COL_POS, row++, BODY_OFFSET);

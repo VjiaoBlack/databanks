@@ -10,9 +10,18 @@
 #define ROWS 24
 #define COLS 80
 
-#define HEADER_OFFSET 6
+/* Column offsets */
+#define NAME_OFFSET 24
+#define NUM_RECORDS_OFFSET 15
+#define FIRST_TIME_OFFSET 25
+#define LAST_TIME_OFFSET 24
+#define TIME_OFFSET 18
 #define BODY_OFFSET 9
 
+/* Row offsets */
+#define HEADER_OFFSET 6
+
+/* Display modes */
 #define MODE_MAIN 0
 #define MODE_NEW 1
 #define MODE_FIND 2
