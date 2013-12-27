@@ -49,8 +49,10 @@ void shift_down(void);
 void scroll_up(void);
 void scroll_down(void);
 
-void delete_entry(void);
-int display_deletebox(void);
+void goto_entry(void);
+int display_gotobox(void);
 void new_entry(void);
 void display_editbox(void);
 void clean_up_editbox(int);
+void delete_entry(void);
+int display_deletebox(void);

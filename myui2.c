@@ -40,7 +40,7 @@ void loop(void) {
                     scroll_down();
                 break;
             case 'g':
-                // TODO
+                goto_entry();
                 break;
             case 'f':
                 // TODO
@@ -287,37 +287,31 @@ void scroll_down(void) {
         shift_up();
 }
 
-/* --------------------------- DELETE ENTRY CODE --------------------------- */
+/* ---------------------------- GOTO ENTRY CODE ---------------------------- */
 
-void delete_entry(void) {
-    int do_it, i;
-    char str_id[6];  // Basically the max number of digits in an record ID
+void goto_entry(void) {
+    int entry, offset;
 
-    if (selected < n_records) {
-        do_it = display_deletebox();
-        if (do_it) {
-            sprintf(str_id, "%d", selected + 1);
-            ReadMystoreFromChild("delete", str_id, NULL, NULL);
-            dealloc_record(records[selected]);
-            read_stat();
-            for (i = selected; i < n_records; i++) {
-                records[i] = records[i + 1];
-                records[i].id--;
-            }
-            if (selected == n_records && selected > 0) {
-                selected--;
-                if (min_shown > 0)
-                    min_shown--;
-            }
-        }
+    if (n_records == 0)
+        return;
+    if ((entry = display_gotobox()) < 0) {  // User canceled
         reset();
         display_header();
         display_records(min_shown);
+        return;
     }
+    selected = entry < n_records ? entry : n_records - 1;
+    offset = selected - ROWS + HEADER_OFFSET + 3;
+    if (offset < 0)
+        offset = 0;
+    reset();
+    display_header();
+    display_records(offset);
 }
 
-int display_deletebox(void) {
-    int key;
+int display_gotobox(void) {
+    int key, cursorpos = 0, cursorr, cursorc;
+    char input[7] = "\0";
 
     grayscale = 1;
     reset();
@@ -326,38 +320,75 @@ int display_deletebox(void) {
     grayscale = 0;
     xt_par2(XT_SET_ROW_COL_POS, 7, 10);
     printf(XT_CH_INVERSE);
-    printf("                        DELETE ENTRY?                         \n");
+    printf("                         GO TO ENTRY                          \n");
     xt_par2(XT_SET_ROW_COL_POS, 8, 10);
     printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 9, 10);
-    printf("  %s       Are you sure you want to delete this entry?        %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    printf("  %s                     Entry ID: %s      %s                     %s  \n", XT_CH_NORMAL, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 10, 10);
-    printf("  %s             %s[Enter]%s Delete   %s[Other]%s Cancel              %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
+    printf("  %s               %s[Enter]%s Go To   %s[F5]%s Cancel                %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 11, 10);
     printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 12, 10);
     printf("                                                              \n");
     printf(XT_CH_NORMAL);
+    xt_par2(XT_SET_ROW_COL_POS, cursorr = 9, cursorc = 43);
 
-    while ((key = getkey()) == KEY_NOTHING);
-    return key == KEY_ENTER;
+    while (1) {
+        while ((key = getkey()) == KEY_NOTHING);
+        switch (key) {
+            case KEY_ENTER:
+                return atoi(input) - 1;
+            case KEY_F5:
+                return -1;
+            case KEY_RIGHT:
+                if (input[cursorpos] != '\0' && cursorpos < 5) {
+                    cursorpos++;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, ++cursorc);
+                }
+                break;
+            case KEY_LEFT:
+                if (cursorpos > 0) {
+                    cursorpos--;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, --cursorc);
+                }
+                break;
+            case KEY_BACKSPACE:
+            case KEY_DELETE:
+                input[cursorpos--] = '\0';
+                if (cursorpos < 0)
+                    cursorpos = 0;
+                else
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, --cursorc);
+                break;
+            default:
+                if (key >= '0' && key <= '9') {
+                    input[cursorpos++] = key;
+                    input[cursorpos] = '\0';
+                    putchar(key);
+                    if (cursorpos == 6) {
+                        cursorpos--;
+                        xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                    }
+                    else
+                        cursorc++;
+                }
+        }
+    }
 }
 
-/* ----------------------------- NEW ENTRY CODE ---------------------------- */
+/* ---------------------------- NEW ENTRY CODE ----------------------------- */
 
 void new_entry(void) {
-    int key, cursorpos = 0;
-    int cursorr = 8, cursorc = 23;
+    int key, cursorpos = 0, cursorr, cursorc;
     int textpos = 0;
     int subjpos = 0, bodypos = 0; // Where subject and body in text ends
 
-    char subject[31];
-    char body[141];
-
-    subject[0] = body[0] = '\0';
+    char subject[31] = "\0";
+    char body[141] = "\0";
 
     display_editbox();
-    xt_par2(XT_SET_ROW_COL_POS, 8, 23);
+    xt_par2(XT_SET_ROW_COL_POS, cursorr = 8, cursorc = 23);
     xt_par0(XT_CH_UNDERLINE);
 
     while (1) {  // all the switching logic
@@ -526,6 +557,62 @@ void clean_up_editbox(int update_new) {
     reset();
     display_header();
     display_records(offset);
+}
+
+/* --------------------------- DELETE ENTRY CODE --------------------------- */
+
+void delete_entry(void) {
+    int do_it, i;
+    char str_id[6];  // Basically the max number of digits in an record ID
+
+    if (selected < n_records) {
+        do_it = display_deletebox();
+        if (do_it) {
+            sprintf(str_id, "%d", selected + 1);
+            ReadMystoreFromChild("delete", str_id, NULL, NULL);
+            dealloc_record(records[selected]);
+            read_stat();
+            for (i = selected; i < n_records; i++) {
+                records[i] = records[i + 1];
+                records[i].id--;
+            }
+            if (selected == n_records && selected > 0) {
+                selected--;
+                if (min_shown > 0)
+                    min_shown--;
+            }
+        }
+        reset();
+        display_header();
+        display_records(min_shown);
+    }
+}
+
+int display_deletebox(void) {
+    int key;
+
+    grayscale = 1;
+    reset();
+    display_header();
+    display_records(min_shown);
+    grayscale = 0;
+    xt_par2(XT_SET_ROW_COL_POS, 7, 10);
+    printf(XT_CH_INVERSE);
+    printf("                        DELETE ENTRY?                         \n");
+    xt_par2(XT_SET_ROW_COL_POS, 8, 10);
+    printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 9, 10);
+    printf("  %s       Are you sure you want to delete this entry?        %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 10, 10);
+    printf("  %s             %s[Enter]%s Delete   %s[Other]%s Cancel              %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 11, 10);
+    printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 12, 10);
+    printf("                                                              \n");
+    printf(XT_CH_NORMAL);
+
+    while ((key = getkey()) == KEY_NOTHING);
+    return key == KEY_ENTER;
 }
 
 /* ----------------------------- MAIN FUNCTION ----------------------------- */
