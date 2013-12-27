@@ -2,7 +2,8 @@
 
 static struct Record* records;
 static int grayscale = 0, n_records, selected, min_shown, max_shown;
-static char *version, *author, *first_time, *last_time;
+static char *version = NULL, *author = NULL, *first_time = NULL,
+            *last_time = NULL;
 
 /* ---------------------- FUNCTIONS CALLED BY main() ----------------------- */
 
@@ -84,6 +85,8 @@ void finish(void) {
 
 /* Copy source into what dest points to, mallocing enough space for dest. */
 void malloc_then_copy(char** dest, char* source) {
+    if (*dest)
+        free(*dest);
     *dest = malloc((strlen(source) + 1) * sizeof(char));
     strcpy(*dest, source);
 }
@@ -96,7 +99,7 @@ void dealloc_record(struct Record record) {
 
 /* Read the output of "mystore stat" into n_records, version, author,
    first_time, and last_time. */
-void read_stat(void) {                                                              // TODO: leak when calling multiple times
+void read_stat(void) {
     ReadMystoreFromChild("stat", NULL, NULL, NULL);
     ParseInput();
 
@@ -107,20 +110,24 @@ void read_stat(void) {                                                          
         malloc_then_copy(&first_time, nvs[4].value);
         malloc_then_copy(&last_time, nvs[5].value);
     }
-    else
+    else {
+        if (first_time)
+            free(first_time);
+        if (last_time)
+            free(last_time);
         first_time = last_time = NULL;
+    }
 }
 
 /* Read the output of "mystore display" for the given record into records. */
 void read_record(int id) {
-    struct Record record;
+    struct Record record = {id + 1, NULL, NULL, NULL, 0};
     char str_id[6];  // Basically the max number of digits in an record ID
 
     sprintf(str_id, "%d", id + 1);
     ReadMystoreFromChild("display", str_id, NULL, NULL);
     ParseInput();
 
-    record.id = id + 1;
     malloc_then_copy(&record.time, nvs[2].value);
     malloc_then_copy(&record.subject, nvs[3].value);
     malloc_then_copy(&record.body, nvs[4].value);
