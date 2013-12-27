@@ -65,15 +65,25 @@ void loop(void) {
 
 /* Reset the keyboard and screen. */
 void finish(void) {
+    int i;
     reset();
     getkey_terminate();
-                                                                                    // TODO: dealloc record data!
+
+    free(version);
+    free(author);
+    if (first_time)
+        free(first_time);
+    if (last_time)
+        free(last_time);
+    for (i = 0; i < n_records; i++)
+        dealloc_record(records[i]);
+    free(records);
 }
 
 /* ----------------------- DATA RETRIEVAL FUNCTIONS ------------------------ */
 
 /* Copy source into what dest points to, mallocing enough space for dest. */
-void malloc_then_copy(char** dest, char* source) {                                  // TODO: leak when updating previous dests
+void malloc_then_copy(char** dest, char* source) {
     *dest = malloc((strlen(source) + 1) * sizeof(char));
     strcpy(*dest, source);
 }
@@ -86,7 +96,7 @@ void dealloc_record(struct Record record) {
 
 /* Read the output of "mystore stat" into n_records, version, author,
    first_time, and last_time. */
-void read_stat(void) {
+void read_stat(void) {                                                              // TODO: leak when calling multiple times
     ReadMystoreFromChild("stat", NULL, NULL, NULL);
     ParseInput();
 
@@ -331,8 +341,8 @@ void new_entry(void) {
     int textpos = 0;
     int subjpos = 0, bodypos = 0; // Where subject and body in text ends
 
-    char* subject = malloc(sizeof(char) * 31);
-    char* body = malloc(sizeof(char) * 141);
+    char subject[31];
+    char body[141];
 
     subject[0] = body[0] = '\0';
 
@@ -345,10 +355,8 @@ void new_entry(void) {
         switch (key) {
             case KEY_ENTER:
                 ReadMystoreFromChild("add", subject, body, NULL);
-                clean_up_editbox(1);
-                return;
             case KEY_F5:
-                clean_up_editbox(0);
+                clean_up_editbox(key == KEY_ENTER);
                 return;
             case KEY_RIGHT:
                 if (cursorpos) {

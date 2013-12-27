@@ -36,8 +36,9 @@
 #define MODE_HELP 5
 
 /* Function headers */
+void dealloc_record(struct Record);
 void read_stat(void);
-void read_record(int id);
+void read_record(int);
 
 void reset(void);
 void display_header(void);
