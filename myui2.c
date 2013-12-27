@@ -38,8 +38,24 @@ void loop(void) {
                 if (selected < n_records - 1)
                     scroll_down();
                 break;
+            case 'g':
+                // TODO
+                break;
+            case 'f':
+                // TODO
+                break;
             case 'n':
                 new_entry();
+                break;
+            case KEY_ENTER:
+                // TODO
+                break;
+            case KEY_DELETE:
+            case KEY_BACKSPACE:
+                delete_entry();
+                break;
+            case 'h':
+                // TODO
                 break;
             case 'q':
                 return;  // Exit the loop and run finish()
@@ -51,15 +67,21 @@ void loop(void) {
 void finish(void) {
     reset();
     getkey_terminate();
-    // TODO: dealloc record data!
+                                                                                    // TODO: dealloc record data!
 }
 
 /* ----------------------- DATA RETRIEVAL FUNCTIONS ------------------------ */
 
 /* Copy source into what dest points to, mallocing enough space for dest. */
-void malloc_then_copy(char** dest, char* source) {
+void malloc_then_copy(char** dest, char* source) {                                  // TODO: leak when updating previous dests
     *dest = malloc((strlen(source) + 1) * sizeof(char));
     strcpy(*dest, source);
+}
+
+void dealloc_record(struct Record record) {
+    free(record.time);
+    free(record.subject);
+    free(record.body);
 }
 
 /* Read the output of "mystore stat" into n_records, version, author,
@@ -240,6 +262,57 @@ void scroll_down(void) {
         shift_up();
 }
 
+/* --------------------------- DELETE ENTRY CODE --------------------------- */
+
+void delete_entry(void) {
+    int do_it, i;
+    char str_id[6];  // Basically the max number of digits in an record ID
+
+    if (selected < n_records) {
+        do_it = display_deletebox();
+        if (do_it) {
+            sprintf(str_id, "%d", selected + 1);
+            ReadMystoreFromChild("delete", str_id, NULL, NULL);
+            dealloc_record(records[selected]);
+            read_stat();
+            for (i = selected; i < n_records; i++) {
+                records[i] = records[i + 1];
+                records[i].id--;
+            }
+            if (selected == n_records && selected > 0) {
+                selected--;
+                if (min_shown > 0)
+                    min_shown--;
+            }
+        }
+        reset();
+        display_header();
+        display_records(min_shown);
+    }
+}
+
+int display_deletebox(void) {
+    int key;
+                                                                                    // TODO: grayscale
+    xt_par2(XT_SET_ROW_COL_POS, 6, 10);
+    printf(XT_CH_INVERSE);
+    printf("                        DELETE ENTRY?                         \n");
+    xt_par2(XT_SET_ROW_COL_POS, 7, 10);
+    printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 8, 10);
+    printf("  %s       Are you sure you want to delete this entry?        %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 9, 10);
+    printf("  %s             %s[Enter]%s Delete   %s[Other]%s Cancel              %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 10, 10);
+    printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 11, 10);
+    printf("                                                              \n");
+    printf(XT_CH_NORMAL);
+
+    while ((key = getkey()) == KEY_NOTHING);
+    return key == KEY_ENTER;
+}
+
 /* ----------------------------- NEW ENTRY CODE ---------------------------- */
 
 void new_entry(void) {
@@ -253,6 +326,7 @@ void new_entry(void) {
 
     subject[0] = body[0] = '\0';
 
+                                                                                    // TODO: grayscale
     display_editbox();
     xt_par2(XT_SET_ROW_COL_POS, 8, 23);
     xt_par0(XT_CH_UNDERLINE);
@@ -263,7 +337,7 @@ void new_entry(void) {
             case KEY_ENTER:
                 ReadMystoreFromChild("add", subject, body, NULL);
             case KEY_F5:
-                clean_up_editbox();
+                clean_up_editbox();                                                 // TODO: quitting from entry shouldn't bring to end
                 return;
             case KEY_RIGHT:
                 if (cursorpos) {
