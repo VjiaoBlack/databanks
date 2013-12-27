@@ -21,10 +21,11 @@
 /* Row offsets */
 #define HEADER_OFFSET 6
 
-/* Other limits */
+/* Other */
 #define MAX_BODY_LINE (COLS - BODY_OFFSET - TIME_OFFSET - 1)
 #define MAX_SHIFT_UP_ROW (HEADER_OFFSET + 5)
 #define MIN_SHIFT_DOWN_ROW (ROWS - 9)
+#define KEY_COLOR XT_CH_GREEN, XT_CH_DEFAULT
 
 /* Display modes */
 #define MODE_MAIN 0

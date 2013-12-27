@@ -1,7 +1,7 @@
 #include "myui2.h"
 
 static struct Record* records;
-static int n_records, selected, min_shown, max_shown;
+static int grayscale = 0, n_records, selected, min_shown, max_shown;
 static char *version, *author, *first_time, *last_time;
 
 /* ---------------------- FUNCTIONS CALLED BY main() ----------------------- */
@@ -132,16 +132,20 @@ void reset(void) {
 
 /* Print a record ID, depending on whether it is highlighted. */
 void print_id(int id, int highlight) {
+    char* red_color = grayscale ? "" : XT_CH_RED;
+    char* yellow_color = grayscale ? "" : XT_CH_YELLOW;
+
     if (highlight)
-        printf("%s->%s %2d ", XT_CH_RED, XT_CH_YELLOW, id);
+        printf("%s->%s %2d ", red_color, yellow_color, id);
     else
-        printf("%s   %2d ", XT_CH_YELLOW, id);
+        printf("%s   %2d ", yellow_color, id);
     xt_par0(XT_CH_DEFAULT);
 }
 
 /* Display the header with the version, record count, times, and help. */
-#define KEY_COLOR XT_CH_GREEN, XT_CH_DEFAULT
+#define KEY_COLOR_2 green_color, XT_CH_DEFAULT
 void display_header(void) {
+    char* green_color = grayscale ? "" : XT_CH_GREEN;
     int len = strlen(author) + strlen(version) + NAME_OFFSET, i;
 
     // Draw the first line (program name, author, version, number of records)
@@ -157,14 +161,14 @@ void display_header(void) {
     // Draw the second and third lines (help info and first/last edit times)
     xt_par2(XT_SET_ROW_COL_POS, 2, 1);
     printf("%s[W/S]%s Scroll  %s[G]%s Go To     %s[F]%s Find  %s[N]%s New",
-           KEY_COLOR, KEY_COLOR, KEY_COLOR, KEY_COLOR);
+           KEY_COLOR_2, KEY_COLOR_2, KEY_COLOR_2, KEY_COLOR_2);
     if (first_time != NULL) {
         xt_par2(XT_SET_ROW_COL_POS, 2, COLS - FIRST_TIME_OFFSET);
         printf("First: %s", first_time);
     }
     xt_par2(XT_SET_ROW_COL_POS, 3, 1);
     printf("%s[Enter]%s Edit  %s[Del]%s Delete  %s[H]%s Help  %s[Q]%s Quit",
-           KEY_COLOR, KEY_COLOR, KEY_COLOR, KEY_COLOR);
+           KEY_COLOR_2, KEY_COLOR_2, KEY_COLOR_2, KEY_COLOR_2);
     if (last_time != NULL) {
         xt_par2(XT_SET_ROW_COL_POS, 3, COLS - LAST_TIME_OFFSET);
         printf("Last: %s", last_time);
@@ -172,7 +176,8 @@ void display_header(void) {
 
     // Draw the fifth line (table header)
     xt_par2(XT_SET_ROW_COL_POS, 5, 1);
-    xt_par0(XT_CH_CYAN);
+    if (!grayscale)
+        xt_par0(XT_CH_CYAN);
     printf("   ID SUBJECT");
     xt_par2(XT_SET_ROW_COL_POS, 5, COLS - TIME_OFFSET);
     printf("TIME");
@@ -293,7 +298,12 @@ void delete_entry(void) {
 
 int display_deletebox(void) {
     int key;
-                                                                                    // TODO: grayscale
+
+    grayscale = 1;
+    reset();
+    display_header();
+    display_records(min_shown);
+    grayscale = 0;
     xt_par2(XT_SET_ROW_COL_POS, 6, 10);
     printf(XT_CH_INVERSE);
     printf("                        DELETE ENTRY?                         \n");
@@ -326,7 +336,6 @@ void new_entry(void) {
 
     subject[0] = body[0] = '\0';
 
-                                                                                    // TODO: grayscale
     display_editbox();
     xt_par2(XT_SET_ROW_COL_POS, 8, 23);
     xt_par0(XT_CH_UNDERLINE);
@@ -452,6 +461,11 @@ void new_entry(void) {
 
 /* Display the edit box. */
 void display_editbox(void) {
+    grayscale = 1;
+    reset();
+    display_header();
+    display_records(min_shown);
+    grayscale = 0;
     xt_par2(XT_SET_ROW_COL_POS, 6, 10);
     printf(XT_CH_INVERSE);
     printf("                        CREATE NEW ENTRY                        \n");
