@@ -311,7 +311,7 @@ void goto_entry(void) {
 
 int display_gotobox(void) {
     int key, cursorpos = 0, cursorr, cursorc, i;
-    char input[7] = "\0";
+    char input[7] = {0, 0, 0, 0, 0, 0, 0};
 
     grayscale = 1;
     reset();
@@ -368,17 +368,17 @@ int display_gotobox(void) {
                 if (key == KEY_BACKSPACE)
                     cursorpos--;
                 xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc = 43);
-                printf("%s", input);
-                for (; i <= 6; i++)
-                    putchar(' ');
+                printf("%-6s", input);
                 xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc += cursorpos);
                 break;
             default:
-                if (key >= '0' && key <= '9' && cursorpos < 6) {
+                if (key >= '0' && key <= '9' && cursorpos < 6 && input[5] == '\0') {
+                    for (i = 5; i > cursorpos; i--)
+                        input[i] = input[i - 1];
                     input[cursorpos++] = key;
-                    input[cursorpos] = '\0';
-                    putchar(key);
-                    cursorc++;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc = 43);
+                    printf("%-6s", input);
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc += cursorpos);
                 }
         }
     }
