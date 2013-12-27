@@ -310,7 +310,7 @@ void goto_entry(void) {
 }
 
 int display_gotobox(void) {
-    int key, cursorpos = 0, cursorr, cursorc;
+    int key, cursorpos = 0, cursorr, cursorc, i;
     char input[7] = "\0";
 
     grayscale = 1;
@@ -333,6 +333,7 @@ int display_gotobox(void) {
     printf("                                                              \n");
     printf(XT_CH_NORMAL);
     xt_par2(XT_SET_ROW_COL_POS, cursorr = 9, cursorc = 43);
+    printf(XT_CH_UNDERLINE);
 
     while (1) {
         while ((key = getkey()) == KEY_NOTHING);
@@ -340,9 +341,10 @@ int display_gotobox(void) {
             case KEY_ENTER:
                 return atoi(input) - 1;
             case KEY_F5:
+            case 'q':
                 return -1;
             case KEY_RIGHT:
-                if (input[cursorpos] != '\0' && cursorpos < 5) {
+                if (input[cursorpos] != '\0') {
                     cursorpos++;
                     xt_par2(XT_SET_ROW_COL_POS, cursorr, ++cursorc);
                 }
@@ -355,23 +357,28 @@ int display_gotobox(void) {
                 break;
             case KEY_BACKSPACE:
             case KEY_DELETE:
-                input[cursorpos--] = '\0';
-                if (cursorpos < 0)
-                    cursorpos = 0;
-                else
-                    xt_par2(XT_SET_ROW_COL_POS, cursorr, --cursorc);
+                if ((key == KEY_BACKSPACE && cursorpos == 0) ||
+                    (key == KEY_DELETE && input[cursorpos] == '\0'))
+                    break;
+                i = key == KEY_BACKSPACE ? cursorpos - 1 : cursorpos;
+                while (input[i] != '\0') {
+                    input[i] = input[i + 1];
+                    i++;
+                }
+                if (key == KEY_BACKSPACE)
+                    cursorpos--;
+                xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc = 43);
+                printf("%s", input);
+                for (; i <= 6; i++)
+                    putchar(' ');
+                xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc += cursorpos);
                 break;
             default:
-                if (key >= '0' && key <= '9') {
+                if (key >= '0' && key <= '9' && cursorpos < 6) {
                     input[cursorpos++] = key;
                     input[cursorpos] = '\0';
                     putchar(key);
-                    if (cursorpos == 6) {
-                        cursorpos--;
-                        xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
-                    }
-                    else
-                        cursorc++;
+                    cursorc++;
                 }
         }
     }
