@@ -304,18 +304,18 @@ int display_deletebox(void) {
     display_header();
     display_records(min_shown);
     grayscale = 0;
-    xt_par2(XT_SET_ROW_COL_POS, 6, 10);
+    xt_par2(XT_SET_ROW_COL_POS, 7, 10);
     printf(XT_CH_INVERSE);
     printf("                        DELETE ENTRY?                         \n");
-    xt_par2(XT_SET_ROW_COL_POS, 7, 10);
-    printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 8, 10);
-    printf("  %s       Are you sure you want to delete this entry?        %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
-    xt_par2(XT_SET_ROW_COL_POS, 9, 10);
-    printf("  %s             %s[Enter]%s Delete   %s[Other]%s Cancel              %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
-    xt_par2(XT_SET_ROW_COL_POS, 10, 10);
     printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 9, 10);
+    printf("  %s       Are you sure you want to delete this entry?        %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 10, 10);
+    printf("  %s             %s[Enter]%s Delete   %s[Other]%s Cancel              %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 11, 10);
+    printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 12, 10);
     printf("                                                              \n");
     printf(XT_CH_NORMAL);
 
