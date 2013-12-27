@@ -220,11 +220,14 @@ void display_record(int id, int* row) {
     int i;
 
     xt_par2(XT_SET_ROW_COL_POS, *row, 1);
+    if (id == selected)
+        xt_par0(XT_CH_BOLD);
     print_id(record->id, id == selected);
     printf("%s", record->subject);
     xt_par2(XT_SET_ROW_COL_POS, (*row)++, COLS - TIME_OFFSET);
     printf("%s", record->time);
     if (id == selected) {
+        xt_par0(XT_CH_NORMAL);
         for (i = 0; i < record->body_lines; i++) {
             xt_par2(XT_SET_ROW_COL_POS, (*row)++, BODY_OFFSET);
             printf("%.*s", MAX_BODY_LINE, record->body + (i * MAX_BODY_LINE));
