@@ -51,4 +51,4 @@ void delete_entry(void);
 int display_deletebox(void);
 void new_entry(void);
 void display_editbox(void);
-void clean_up_editbox(void);
+void clean_up_editbox(int);

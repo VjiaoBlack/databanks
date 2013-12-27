@@ -336,8 +336,10 @@ void new_entry(void) {
         switch (key) {
             case KEY_ENTER:
                 ReadMystoreFromChild("add", subject, body, NULL);
+                clean_up_editbox(1);
+                return;
             case KEY_F5:
-                clean_up_editbox();                                                 // TODO: quitting from entry shouldn't bring to end
+                clean_up_editbox(0);
                 return;
             case KEY_RIGHT:
                 if (cursorpos) {
@@ -475,17 +477,20 @@ void display_editbox(void) {
 }
 
 /* Clear the edit box and restore the previous state. */
-void clean_up_editbox(void) {
+void clean_up_editbox(int update_new) {
     int offset;
 
-    read_stat();
-    selected = n_records - 1;
-    offset = selected - ROWS + HEADER_OFFSET + 3;
-    if (offset < 0)
-        offset = 0;
-    records = realloc(records, n_records * sizeof(struct Record));
-    read_record(selected);
-
+    if (update_new) {
+        read_stat();
+        selected = n_records - 1;
+        offset = selected - ROWS + HEADER_OFFSET + 3;
+        if (offset < 0)
+            offset = 0;
+        records = realloc(records, n_records * sizeof(struct Record));
+        read_record(selected);
+    }
+    else
+        offset = min_shown;
     reset();
     display_header();
     display_records(offset);
