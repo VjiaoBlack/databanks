@@ -52,6 +52,8 @@ void scroll_down(void);
 void goto_entry(void);
 int display_gotobox(void);
 void new_entry(void);
+int editbox_input(char*, char*);
+void edit_entry(void);
 void display_editbox(void);
 void clean_up_editbox(int);
 void delete_entry(void);

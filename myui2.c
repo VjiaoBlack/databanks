@@ -49,7 +49,7 @@ void loop(void) {
                 new_entry();
                 break;
             case KEY_ENTER:
-                // TODO
+                edit_entry();
                 break;
             case KEY_DELETE:
             case KEY_BACKSPACE:
@@ -203,12 +203,12 @@ void display_header(void) {
 
 /* Display all records. */
 void display_records(int start) {
-    int i, row = HEADER_OFFSET;
+    int i, row = HEADER_OFFSET, margin = 3 - records[selected].body_lines;
 
     min_shown = start;
     for (i = start; i < n_records; i++) {
         display_record(i, &row);
-        if (row > ROWS - 2)
+        if (row > ROWS - margin)
             break;
     }
     max_shown = i;
@@ -387,14 +387,24 @@ int display_gotobox(void) {
 /* ---------------------------- NEW ENTRY CODE ----------------------------- */
 
 void new_entry(void) {
-    int key, cursorpos = 0, cursorr, cursorc;
-    int textpos = 0;
-    int subjpos = 0, bodypos = 0; // Where subject and body in text ends
-
     char subject[31] = "\0";
     char body[141] = "\0";
 
     display_editbox();
+    if (editbox_input(subject, body)) {
+        ReadMystoreFromChild("add", subject, body, NULL);
+        clean_up_editbox(1);
+    }
+    else
+        clean_up_editbox(0);
+}
+
+int editbox_input(char* subject, char* body) {
+    int key;
+    int cursorpos = 0, cursorr, cursorc;
+    int textpos = 0;
+    int subjpos = 0, bodypos = 0; // Where subject and body in text ends
+
     xt_par2(XT_SET_ROW_COL_POS, cursorr = 8, cursorc = 23);
     xt_par0(XT_CH_UNDERLINE);
 
@@ -402,10 +412,9 @@ void new_entry(void) {
         while ((key = getkey()) == KEY_NOTHING);
         switch (key) {
             case KEY_ENTER:
-                ReadMystoreFromChild("add", subject, body, NULL);
+                return 1;
             case KEY_F5:
-                clean_up_editbox(key == KEY_ENTER);
-                return;
+                return 0;
             case KEY_RIGHT:
                 if (cursorpos) {
                     if (textpos >= bodypos)
@@ -513,6 +522,12 @@ void new_entry(void) {
                 break;
         }
     }
+}
+
+/* ---------------------------- EDIT ENTRY CODE ---------------------------- */
+
+void edit_entry(void) {
+
 }
 
 /* Display the edit box. */
