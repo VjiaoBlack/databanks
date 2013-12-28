@@ -287,6 +287,55 @@ void scroll_down(void) {
         shift_up();
 }
 
+void display_record_to_edit(int subjpos, int bodypos, char* subject, char* body){
+    xt_par2(XT_SET_ROW_COL_POS, 8, 23);
+    xt_par0(XT_CH_UNDERLINE);
+    int textpos = 0;
+    while (textpos < 31) { // subject 
+        if (textpos > subjpos) 
+            putchar(' ');
+        else {
+            putchar(subject[textpos]);
+        }
+        textpos++;
+    }
+
+    textpos = 0;
+    xt_par2(XT_SET_ROW_COL_POS, 9, 23);
+    while (textpos <= 46) {// i'm  printing out the data
+        if (textpos == bodypos) 
+            putchar(' ');
+        else {
+            putchar(body[textpos]);
+        }
+        textpos++;
+    }
+
+    xt_par2(XT_SET_ROW_COL_POS, 10, 23);
+    while (textpos <= 93) {// i'm  printing out the data
+        if (textpos == bodypos ) 
+            putchar(' ');
+        else {
+            putchar(body[textpos]);
+        }
+        textpos++;
+    }
+
+    xt_par2(XT_SET_ROW_COL_POS, 11, 23);
+    while (textpos <= 139) {// i'm  printing out the data
+        if (textpos == bodypos ) //how to stop last char from being space, and from sticky chars at end of line
+
+            putchar(' ');
+        else {
+            putchar(body[textpos]);
+        }
+        textpos++;
+    }
+
+    xt_par2(XT_SET_ROW_COL_POS, 8, 23);
+    textpos = 0;
+}
+
 /* ---------------------------- GOTO ENTRY CODE ---------------------------- */
 
 void goto_entry(void) {
@@ -400,13 +449,15 @@ void new_entry(void) {
 }
 
 int editbox_input(char* subject, char* body) {
-    int key;
-    int cursorpos = 0, cursorr, cursorc;
-    int textpos = 0;
-    int subjpos = 0, bodypos = 0; // Where subject and body in text ends
-
+    int key, cursorpos = 0;
+    int cursorr = 8, cursorc = 23;
+    int textpos = 0; // where cursor is in current piece of text (either subj or body)
+    int subjpos = strlen(subject), bodypos = strlen(body); // Where subject and body in text ends
+    int i = 0;
     xt_par2(XT_SET_ROW_COL_POS, cursorr = 8, cursorc = 23);
     xt_par0(XT_CH_UNDERLINE);
+
+    display_record_to_edit(subjpos, bodypos, subject, body);
 
     while (1) {  // all the switching logic
         while ((key = getkey()) == KEY_NOTHING);
@@ -444,55 +495,76 @@ int editbox_input(char* subject, char* body) {
                 }
                 break;
             case KEY_DOWN:
-                if (cursorpos == 0)
+                if (cursorpos == 0) {
                     xt_par2(XT_SET_ROW_COL_POS, 9, 23);
-                cursorpos = 1;
-                cursorr = 9;
-                cursorc = 23;
-                textpos = 0;
+                    cursorpos = 1;
+                    cursorr = 9;
+                    cursorc = 23;
+                    textpos = 0;
+                }
                 break;
             case KEY_UP:
-                if (cursorpos == 1)
+                if (cursorpos == 1) {
                     xt_par2(XT_SET_ROW_COL_POS, 8, 23);
-                cursorpos = 0;
-                cursorr = 8;
-                cursorc = 23;
-                textpos = 0;
+                    cursorpos = 0;
+                    cursorr = 8;
+                    cursorc = 23;
+                    textpos = 0;
+                }
                 break;
             case KEY_BACKSPACE:
-                if (cursorc > 23) {
-                    cursorc--;
-                    textpos--;
+                i = 0;
+                if (cursorc >= 23) {
+                    if (cursorc == 23 && cursorr > 9) { // backspace triggers line jump
+                        textpos--;
+                        cursorc = 69;
+                        cursorr--;
+                    } else if (cursorc == 23 && cursorr <= 9) {
+                        break;
+                    } else { // default backspace.
+                        cursorc--;
+                        textpos--;
+                    }
                     if (cursorpos) {  // Body
-                        if (body[textpos+1] == '\0')
-                            body[textpos] = '\0';
-                        else
-                            body[textpos] = ' ';
-                        bodypos--;
+                        if (body[cursorc-22] == '\0')
+                            body[cursorc-23] = '\0';
+                        else {
+                            i = textpos;
+                            while (body[i] != '\0' && i <= bodypos) { 
+                                body[i] = body[i+1];
+                                i++;
+                            }
+                        }
+                        --bodypos;
+                    } else {  // Subject
+                        if (subject[cursorc-22] == '\0')
+                            subject[cursorc-23] = '\0';
+                        else {
+                            i = cursorc-23;
+                            while (subject[i] != '\0' && i <= subjpos) { // <= is no error, but not sure if just < is enough
+                                subject[i] = subject[i+1];
+                                i++;
+                            }
+                        }
+                        --subjpos;
                     }
-                    else {  // Subject
-                        if (subject[textpos+1] == '\0')
-                            subject[textpos] = '\0';
-                        else
-                            subject[textpos] = ' ';
-                        subjpos--;
-                    }
-                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
-                    putchar(' ');
                     xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
                 }
-                else if (cursorc == 23 && cursorr > 9) {
-                    textpos--;
-                    cursorc = 69;
-                    cursorr--;
-                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
-                    putchar(' ');
-                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
-                }
+                display_record_to_edit(subjpos, bodypos, subject, body);
+                xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
                 break;
-            default:
-                if (cursorpos == 1) {
+
+
+
+            default: 
+
+
+                if (cursorpos == 1) { // body break, update
                     if (cursorc > 68 && cursorr == 11)
+                        break;
+                    if (textpos == 0 && (char)key == ' ')
+                        break;
+                    else if (bodypos == 140) 
                         break;
                     else if (cursorc > 69 && cursorr < 11) {
                         cursorc = 23;
@@ -500,23 +572,50 @@ int editbox_input(char* subject, char* body) {
                         xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
                     }
                 }
-                if (cursorpos == 0 && cursorc > 52)
-                    break;
+                if (cursorpos == 0) {
+                    if (cursorc > 52)
+                        break;
+                    if (subjpos == 30) 
+                        break;
+                    if (textpos == 0 && (char)key == ' ') 
+                        break;
+                }
+
+
+
                 if (key >= ' ' && key <= '~') {
                     putchar((char) key);
                     cursorc++;
                     textpos++;
-                    if (cursorpos) {  // Body
+                    if (cursorpos) {  // Body 
                         if (body[textpos-1] == '\0')
                             body[textpos] = '\0';
+                        else {
+                            i = bodypos + 1;
+                            while (i >= textpos) { // dont worry about carrying '\0'
+                                body[i] = body[i-1];
+                                i--;
+                            }   
+                        }
                         body[textpos-1] = (char)key;
                         bodypos++;
+                        display_record_to_edit(subjpos, bodypos, subject, body);
+                        xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
                     }
                     else {  // Subject
                         if (subject[textpos-1] == '\0')
                             subject[textpos] = '\0';
+                        else {
+                            i = subjpos + 1;
+                            while (i >= textpos) { // dont worry about carrying '\0'
+                                subject[i] = subject[i-1];
+                                i--;
+                            } 
+                        }
                         subject[textpos-1] = (char)key;
                         subjpos++;
+                        display_record_to_edit(subjpos, bodypos, subject, body);
+                        xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
                     }
                 }
                 break;
@@ -527,7 +626,23 @@ int editbox_input(char* subject, char* body) {
 /* ---------------------------- EDIT ENTRY CODE ---------------------------- */
 
 void edit_entry(void) {
+    char str_id[6];  // Basically the max number of digits in an record ID
 
+
+    char* subject = malloc(sizeof(char) * 31);
+    char* body = malloc(sizeof(char) * 141);
+
+    strcpy(subject, records[selected].subject);
+    strcpy(body, records[selected].body);
+
+    display_editbox();
+    if (editbox_input(subject, body)) {
+        sprintf(str_id, "%d", selected + 1);
+        ReadMystoreFromChild("edit", str_id, subject, body);
+        clean_up_editbox(0);
+    }
+    else
+        clean_up_editbox(0);
 }
 
 /* Display the edit box. */
@@ -565,17 +680,22 @@ void display_editbox(void) {
 void clean_up_editbox(int update_new) {
     int offset;
 
-    if (update_new) {
+    //if (update_new) {
         read_stat();
-        selected = n_records - 1;
+    //    selected = n_records - 1;
+
+        if (update_new == 1) { //if is new entry
+            selected = n_records - 1;
+        }
+
         offset = selected - ROWS + HEADER_OFFSET + 3;
         if (offset < 0)
             offset = 0;
         records = realloc(records, n_records * sizeof(struct Record));
         read_record(selected);
-    }
-    else
-        offset = min_shown;
+    //}
+    //else
+    //    offset = min_shown;
     reset();
     display_header();
     display_records(offset);
