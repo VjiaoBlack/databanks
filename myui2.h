@@ -56,6 +56,8 @@ void clean_up_helpmenu(void);
 
 void goto_entry(void);
 int display_gotobox(void);
+void find_entry(void);
+char* display_findbox(void);
 void new_entry(void);
 int editbox_input(char*, char*);
 void edit_entry(void);

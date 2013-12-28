@@ -42,7 +42,7 @@ void loop(void) {
                 goto_entry();
                 break;
             case 'f':
-                // TODO
+                find_entry();
                 break;
             case 'n':
                 new_entry();
@@ -432,6 +432,119 @@ int display_gotobox(void) {
     }
 }
 
+
+/* ---------------------------- FIND ENTRY CODE ---------------------------- */
+
+int do_search(char* search) {
+    int i;
+
+    for (i = 0; i < n_records; i++) {
+        if (strstr(records[i].subject, search) || strstr(records[i].body, search))
+            return i;
+    }
+    return -1;
+}
+
+void find_entry(void) {
+    int result, offset;
+    char* search;
+
+    if (n_records == 0)
+        return;
+    if ((search = display_findbox()) < 0) {  // User canceled
+        reset();
+        display_header();
+        display_records(min_shown);
+        return;
+    }
+    result = do_search(search);
+    if (result != -1)
+        selected = result;
+    free(search);
+    offset = selected - ROWS + HEADER_OFFSET + 3;
+    if (offset < 0)
+        offset = 0;
+    reset();
+    display_header();
+    display_records(offset);
+}
+
+char* display_findbox(void) {
+    int key, cursorpos = 0, cursorr, cursorc, i;
+    char* input;
+
+    input = calloc(25, sizeof(char));
+    grayscale = 1;
+    reset();
+    display_header();
+    display_records(min_shown);
+    grayscale = 0;
+    xt_par2(XT_SET_ROW_COL_POS, 7, 10);
+    printf(XT_CH_INVERSE);
+    printf("                          FIND ENTRY                          \n");
+    xt_par2(XT_SET_ROW_COL_POS, 8, 10);
+    printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 9, 10);
+    printf("  %s             Search: %s                        %s             %s  \n", XT_CH_NORMAL, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 10, 10);
+    printf("  %s                %s[Enter]%s Find   %s[F5]%s Cancel                %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 11, 10);
+    printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+    xt_par2(XT_SET_ROW_COL_POS, 12, 10);
+    printf("                                                              \n");
+    printf(XT_CH_NORMAL);
+    xt_par2(XT_SET_ROW_COL_POS, cursorr = 9, cursorc = 33);
+    printf(XT_CH_UNDERLINE);
+
+    while (1) {
+        while ((key = getkey()) == KEY_NOTHING);
+        switch (key) {
+            case KEY_ENTER:
+                return input;
+            case KEY_F5:
+            case 'q':
+                return NULL;
+            case KEY_RIGHT:
+                if (input[cursorpos] != '\0') {
+                    cursorpos++;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, ++cursorc);
+                }
+                break;
+            case KEY_LEFT:
+                if (cursorpos > 0) {
+                    cursorpos--;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, --cursorc);
+                }
+                break;
+            case KEY_BACKSPACE:
+            case KEY_DELETE:
+                if ((key == KEY_BACKSPACE && cursorpos == 0) ||
+                    (key == KEY_DELETE && input[cursorpos] == '\0'))
+                    break;
+                i = key == KEY_BACKSPACE ? cursorpos - 1 : cursorpos;
+                while (input[i] != '\0') {
+                    input[i] = input[i + 1];
+                    i++;
+                }
+                if (key == KEY_BACKSPACE)
+                    cursorpos--;
+                xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc = 33);
+                printf("%-24s", input);
+                xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc += cursorpos);
+                break;
+            default:
+                if (key >= ' ' && key <= '~' && cursorpos < 24 && input[23] == '\0') {
+                    for (i = 23; i > cursorpos; i--)
+                        input[i] = input[i - 1];
+                    input[cursorpos++] = key;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc = 33);
+                    printf("%-24s", input);
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc += cursorpos);
+                }
+        }
+    }
+}
+
 /* ---------------------------- NEW ENTRY CODE ----------------------------- */
 
 void new_entry(void) {
@@ -486,7 +599,6 @@ int editbox_input(char* subject, char* body) {
                     break;
                 if (cursorc > 68 && cursorr == 11) // eof
                     break;
-
                 else if (cursorc > 68 && cursorr < 11) { //jump
                     cursorc = 23;
                     cursorr++;
