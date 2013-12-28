@@ -455,6 +455,7 @@ int editbox_input(char* subject, char* body) {
     int textpos = 0; // where cursor is in current piece of text (either subj or body)
     int subjpos = strlen(subject), bodypos = strlen(body); // Where subject and body in text ends
     int i = 0;
+    int warningtriggered = 0;
     xt_par2(XT_SET_ROW_COL_POS, cursorr = 8, cursorc = 23);
     xt_par0(XT_CH_UNDERLINE);
 
@@ -464,6 +465,17 @@ int editbox_input(char* subject, char* body) {
         while ((key = getkey()) == KEY_NOTHING);
         switch (key) {
             case KEY_ENTER:
+                if (strlen(subject) == 0 && strlen(body) == 0) {
+                    warningtriggered = 1;
+                    xt_par2(XT_SET_ROW_COL_POS, 7, 20);
+                    printf(XT_CH_NORMAL);
+                    printf(XT_CH_RED);
+                    printf(XT_CH_BOLD);
+                    printf("COMPLETELY BLANK ENTRIES NOT ALLOWED");
+                    printf(XT_CH_NORMAL);
+                    xt_par2(XT_SET_ROW_COL_POS, 8, 23);
+                    break;
+                }
                 return 1;
             case KEY_F5:
                 return 0;
@@ -558,8 +570,15 @@ int editbox_input(char* subject, char* body) {
 
 
             default: 
-
-
+                if (warningtriggered) {
+                    xt_par2(XT_SET_ROW_COL_POS, 7, 20);
+                    printf(XT_CH_NORMAL);
+                    printf("                                        ");
+                    printf(XT_CH_UNDERLINE);
+                    xt_par2(XT_SET_ROW_COL_POS, 8, 23);
+                    warningtriggered = 0;
+                }
+ 
                 if (cursorpos == 1) { // body break, update
                     if (cursorc > 68 && cursorr == 11)
                         break;
