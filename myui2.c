@@ -57,7 +57,7 @@ void loop(void) {
                     delete_entry();
                 break;
             case 'h':
-                // TODO
+                help_menu();
                 break;
             case 'q':
                 return;  // Exit the loop and run finish()
@@ -757,6 +757,133 @@ int display_deletebox(void) {
     while ((key = getkey()) == KEY_NOTHING);
     return key == KEY_ENTER;
 }
+
+/* ----------------------------- HELP MENU CODE ---------------------------- */
+void help_menu(void) {
+    display_helpmenu(1);    
+    helpmenu_run();
+    clean_up_helpmenu();
+}
+
+/* Display the help menu. */
+void display_helpmenu(int page) {
+    grayscale = 1;
+    reset();
+    display_header();
+    display_records(min_shown);
+    grayscale = 0;
+
+
+    if (page == 1) {
+        xt_par2(XT_SET_ROW_COL_POS, 6, 9);
+        printf(XT_CH_INVERSE);
+        printf("                           HELP MENU                            \n");
+        xt_par2(XT_SET_ROW_COL_POS, 7, 9);
+        printf("  %s         _|              _|                                 %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 8, 9);
+        printf("  %s     _|_|_|    _|_|_|  _|_|_|_|    _|_|_|   Ben Kurtovic    %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 9, 9);
+        printf("  %s   _|    _|  _|    _|    _|      _|    _|      and          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 10, 9);
+        printf("  %s   _|    _|  _|    _|    _|      _|    _|   Victor Jiao     %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 11, 9);
+        printf("  %s     _|_|_|    _|_|_|      _|_|    _|_|_|                   %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 12, 9);
+        printf("  %s        _|                            _|                    %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 13, 9);
+        printf("  %s        _|_|_|      _|_|_|  _|_|_|    _|  _|      _|_|_|    %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 14, 9);
+        printf("  %s        _|    _|  _|    _|  _|    _|  _|_|      _|_|        %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 15, 9);
+        printf("  %s        _|    _|  _|    _|  _|    _|  _|  _|        _|_|    %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 16, 9);
+        printf("  %s        _|_|_|      _|_|_|  _|    _|  _|    _|  _|_|_|      %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 17, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 18, 9);
+        printf("  %s     %s[Arrow Keys]%s Navigate Pages            %s[F5]%s Back       %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 19, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 20, 9);
+        printf("                            PAGE %d/2                            \n", page);
+        printf(XT_CH_NORMAL);
+
+    } else if (page == 2) {
+        xt_par2(XT_SET_ROW_COL_POS, 6, 9);
+        printf(XT_CH_INVERSE);
+        printf("                           HELP MENU                            \n");
+        xt_par2(XT_SET_ROW_COL_POS, 7, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 8, 9);
+        printf("  %s * Please note that sometimes, you must hold down the 'fn'  %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 9, 9);
+        printf("  %s   key to appropriately use the function (F5) keys. Refer   %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 10, 9);
+        printf("  %s   to your keyboard manual or check online for more help.   %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 11, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 12, 9);
+        printf("  %s * In addition, to navigate through font in the body of an  %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 13, 9);
+        printf("  %s   entry, you may only use the left and right arrow keys.   %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 14, 9);
+        printf("  %s   This is to help prevent excessive, unintentional edits.  %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 15, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 16, 9);
+        printf("  %s * We hope you enjoy using databanks!                       %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 17, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 18, 9);
+        printf("  %s     %s[Arrow Keys]%s Navigate Pages            %s[F5]%s Back       %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 19, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 20, 9);
+        printf("                            PAGE %d/2                            \n", page);
+        printf(XT_CH_NORMAL);
+    }
+
+}
+
+void helpmenu_run(void) {
+    int page = 1;
+    int key;
+
+    while (1) {  // all the switching logic
+        while ((key = getkey()) == KEY_NOTHING);
+        switch (key) {
+            case KEY_F5:
+                return;
+            case KEY_RIGHT:
+                if (page < 2) {
+                    page++;
+                    display_helpmenu(page);
+                }
+                break;
+            case KEY_LEFT:
+                if (page > 1) {
+                    page--;
+                    display_helpmenu(page);
+                }
+                break;
+        }
+    }
+
+}
+
+/* Clear the edit box and restore the previous state. */
+void clean_up_helpmenu() {
+    int offset;
+    offset = selected - ROWS + HEADER_OFFSET + 3;
+    if (offset < 0)
+        offset = 0;
+    records = realloc(records, n_records * sizeof(struct Record));
+    read_record(selected);
+    reset();
+    display_header();
+    display_records(offset);
+}
+
 
 /* ----------------------------- MAIN FUNCTION ----------------------------- */
 
