@@ -49,7 +49,6 @@ void shift_down(void);
 void scroll_up(void);
 void scroll_down(void);
 
-
 void help_menu(void);
 void display_helpmenu(int);
 void helpmenu_run(void);

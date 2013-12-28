@@ -19,7 +19,6 @@ void setup(void) {
 
 /* Main menu loop. */
 void loop(void) {
-    // int mode = MODE_MAIN;
     int key;
 
     selected = 0;
@@ -53,8 +52,7 @@ void loop(void) {
                 break;
             case KEY_DELETE:
             case KEY_BACKSPACE:
-                if (n_records > 0) 
-                    delete_entry();
+                delete_entry();
                 break;
             case 'h':
                 help_menu();
@@ -292,8 +290,8 @@ void display_record_to_edit(int subjpos, int bodypos, char* subject, char* body)
     xt_par2(XT_SET_ROW_COL_POS, 8, 23);
     xt_par0(XT_CH_UNDERLINE);
     int textpos = 0;
-    while (textpos < 31) { // subject 
-        if (textpos > subjpos) 
+    while (textpos < 31) { // subject
+        if (textpos > subjpos)
             putchar(' ');
         else {
             putchar(subject[textpos]);
@@ -304,7 +302,7 @@ void display_record_to_edit(int subjpos, int bodypos, char* subject, char* body)
     textpos = 0;
     xt_par2(XT_SET_ROW_COL_POS, 9, 23);
     while (textpos <= 46) {// i'm  printing out the data
-        if (textpos == bodypos) 
+        if (textpos == bodypos)
             putchar(' ');
         else {
             putchar(body[textpos]);
@@ -314,7 +312,7 @@ void display_record_to_edit(int subjpos, int bodypos, char* subject, char* body)
 
     xt_par2(XT_SET_ROW_COL_POS, 10, 23);
     while (textpos <= 93) {// i'm  printing out the data
-        if (textpos == bodypos ) 
+        if (textpos == bodypos )
             putchar(' ');
         else {
             putchar(body[textpos]);
@@ -554,8 +552,7 @@ int editbox_input(char* subject, char* body) {
                     cursorc++;
                     textpos++;
                     xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
-                }    
-
+                }
             case KEY_BACKSPACE:
                 i = 0;
                 if (cursorc >= 23) {
@@ -574,7 +571,7 @@ int editbox_input(char* subject, char* body) {
                             body[cursorc-23] = '\0';
                         else {
                             i = textpos;
-                            while (body[i] != '\0' && i <= bodypos) { 
+                            while (body[i] != '\0' && i <= bodypos) {
                                 body[i] = body[i+1];
                                 i++;
                             }
@@ -597,10 +594,7 @@ int editbox_input(char* subject, char* body) {
                 display_record_to_edit(subjpos, bodypos, subject, body);
                 xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
                 break;
-
-
-
-            default: 
+            default:
                 if (warningtriggered) {
                     xt_par2(XT_SET_ROW_COL_POS, 7, 20);
                     printf(XT_CH_NORMAL);
@@ -609,13 +603,12 @@ int editbox_input(char* subject, char* body) {
                     xt_par2(XT_SET_ROW_COL_POS, 8, 23);
                     warningtriggered = 0;
                 }
- 
                 if (cursorpos == 1) { // body break, update
                     if (cursorc > 68 && cursorr == 11)
                         break;
                     if (textpos == 0 && (char)key == ' ')
                         break;
-                    else if (bodypos == 140) 
+                    else if (bodypos == 140)
                         break;
                     else if (cursorc > 69 && cursorr < 11) {
                         cursorc = 23;
@@ -626,19 +619,16 @@ int editbox_input(char* subject, char* body) {
                 if (cursorpos == 0) {
                     if (cursorc > 52)
                         break;
-                    if (subjpos == 30) 
+                    if (subjpos == 30)
                         break;
-                    if (textpos == 0 && (char)key == ' ') 
+                    if (textpos == 0 && (char)key == ' ')
                         break;
                 }
-
-
-
                 if (key >= ' ' && key <= '~') {
                     putchar((char) key);
                     cursorc++;
                     textpos++;
-                    if (cursorpos) {  // Body 
+                    if (cursorpos) {  // Body
                         if (body[textpos-1] == '\0')
                             body[textpos] = '\0';
                         else {
@@ -646,7 +636,7 @@ int editbox_input(char* subject, char* body) {
                             while (i >= textpos) { // dont worry about carrying '\0'
                                 body[i] = body[i-1];
                                 i--;
-                            }   
+                            }
                         }
                         body[textpos-1] = (char)key;
                         bodypos++;
@@ -661,7 +651,7 @@ int editbox_input(char* subject, char* body) {
                             while (i >= textpos) { // dont worry about carrying '\0'
                                 subject[i] = subject[i-1];
                                 i--;
-                            } 
+                            }
                         }
                         subject[textpos-1] = (char)key;
                         subjpos++;
@@ -678,8 +668,6 @@ int editbox_input(char* subject, char* body) {
 
 void edit_entry(void) {
     char str_id[6];  // Basically the max number of digits in an record ID
-
-
     char* subject = malloc(sizeof(char) * 31);
     char* body = malloc(sizeof(char) * 141);
 
@@ -731,22 +719,14 @@ void display_editbox(void) {
 void clean_up_editbox(int update_new) {
     int offset;
 
-    //if (update_new) {
-        read_stat();
-    //    selected = n_records - 1;
-
-        if (update_new == 1) { //if is new entry
-            selected = n_records - 1;
-        }
-
-        offset = selected - ROWS + HEADER_OFFSET + 3;
-        if (offset < 0)
-            offset = 0;
-        records = realloc(records, n_records * sizeof(struct Record));
-        read_record(selected);
-    //}
-    //else
-    //    offset = min_shown;
+    read_stat();
+    if (update_new)  // If is new entry
+        selected = n_records - 1;
+    offset = selected - ROWS + HEADER_OFFSET + 3;
+    if (offset < 0)
+        offset = 0;
+    records = realloc(records, n_records * sizeof(struct Record));
+    read_record(selected);
     reset();
     display_header();
     display_records(offset);
@@ -809,8 +789,9 @@ int display_deletebox(void) {
 }
 
 /* ----------------------------- HELP MENU CODE ---------------------------- */
+
 void help_menu(void) {
-    display_helpmenu(1);    
+    display_helpmenu(1);
     helpmenu_run();
     clean_up_helpmenu();
 }
@@ -822,7 +803,6 @@ void display_helpmenu(int page) {
     display_header();
     display_records(min_shown);
     grayscale = 0;
-
 
     if (page == 1) {
         xt_par2(XT_SET_ROW_COL_POS, 6, 9);
@@ -921,8 +901,8 @@ void helpmenu_run(void) {
 
 }
 
-/* Clear the edit box and restore the previous state. */
-void clean_up_helpmenu() {
+/* Clear the help box and restore the previous state. */
+void clean_up_helpmenu(void) {
     int offset;
     offset = selected - ROWS + HEADER_OFFSET + 3;
     if (offset < 0)
