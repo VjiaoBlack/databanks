@@ -484,9 +484,10 @@ int editbox_input(char* subject, char* body) {
                 }
                 else if (textpos >= subjpos)
                     break;
-                if (cursorc > 68 && cursorr == 11)
+                if (cursorc > 68 && cursorr == 11) // eof
                     break;
-                else if (cursorc > 68 && cursorr < 11) {
+
+                else if (cursorc > 68 && cursorr < 11) { //jump
                     cursorc = 23;
                     cursorr++;
                     textpos++;
@@ -505,9 +506,10 @@ int editbox_input(char* subject, char* body) {
                     xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
                 }
                 if (cursorc == 23 && cursorr > 8) {
-                    cursorc = 70;
+                    cursorc = 69;
                     cursorr--;
                     textpos--;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
                 }
                 break;
             case KEY_DOWN:
