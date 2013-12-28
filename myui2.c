@@ -3,7 +3,7 @@
 static struct Record* records;
 static int grayscale = 0, n_records, selected, min_shown, max_shown;
 static char *version = NULL, *author = NULL, *first_time = NULL,
-            *last_time = NULL;
+            *last_time = NULL, *search;
 
 /* ---------------------- FUNCTIONS CALLED BY main() ----------------------- */
 
@@ -15,6 +15,7 @@ void setup(void) {
     records = malloc(n_records * sizeof(struct Record));
     for (i = 0; i < n_records; i++)
         read_record(i);
+    search = calloc(25, sizeof(char));
 }
 
 /* Main menu loop. */
@@ -78,6 +79,7 @@ void finish(void) {
     for (i = 0; i < n_records; i++)
         dealloc_record(records[i]);
     free(records);
+    free(search);
 }
 
 /* ----------------------- DATA RETRIEVAL FUNCTIONS ------------------------ */
@@ -435,32 +437,36 @@ int display_gotobox(void) {
 
 /* ---------------------------- FIND ENTRY CODE ---------------------------- */
 
-int do_search(char* search) {
-    int i;
+int do_search(void) {
+    int i = selected;
 
-    for (i = 0; i < n_records; i++) {
+    do {
+        i++;
+        if (i >= n_records)
+            i = 0;
         if (strstr(records[i].subject, search) || strstr(records[i].body, search))
             return i;
-    }
+    } while (i != selected);
     return -1;
 }
 
 void find_entry(void) {
     int result, offset;
-    char* search;
+    char* input;
 
     if (n_records == 0)
         return;
-    if ((search = display_findbox()) < 0) {  // User canceled
+    if ((input = display_findbox()) < 0) {  // User canceled
         reset();
         display_header();
         display_records(min_shown);
         return;
     }
-    result = do_search(search);
+    strcpy(search, input);
+    free(input);
+    result = do_search();
     if (result != -1)
         selected = result;
-    free(search);
     offset = selected - ROWS + HEADER_OFFSET + 3;
     if (offset < 0)
         offset = 0;
@@ -470,10 +476,12 @@ void find_entry(void) {
 }
 
 char* display_findbox(void) {
-    int key, cursorpos = 0, cursorr, cursorc, i;
+    int key, cursorpos, cursorr, cursorc, i;
     char* input;
 
     input = calloc(25, sizeof(char));
+    strcpy(input, search);
+    cursorpos = strlen(input);
     grayscale = 1;
     reset();
     display_header();
@@ -485,7 +493,7 @@ char* display_findbox(void) {
     xt_par2(XT_SET_ROW_COL_POS, 8, 10);
     printf("  %s                                                          %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 9, 10);
-    printf("  %s             Search: %s                        %s             %s  \n", XT_CH_NORMAL, XT_CH_UNDERLINE, XT_CH_NORMAL, XT_CH_INVERSE);
+    printf("  %s             Search: %s%-24s%s             %s  \n", XT_CH_NORMAL, XT_CH_UNDERLINE, input, XT_CH_NORMAL, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 10, 10);
     printf("  %s                %s[Enter]%s Find   %s[F5]%s Cancel                %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
     xt_par2(XT_SET_ROW_COL_POS, 11, 10);
@@ -493,7 +501,7 @@ char* display_findbox(void) {
     xt_par2(XT_SET_ROW_COL_POS, 12, 10);
     printf("                                                              \n");
     printf(XT_CH_NORMAL);
-    xt_par2(XT_SET_ROW_COL_POS, cursorr = 9, cursorc = 33);
+    xt_par2(XT_SET_ROW_COL_POS, cursorr = 9, cursorc = 33 + cursorpos);
     printf(XT_CH_UNDERLINE);
 
     while (1) {
