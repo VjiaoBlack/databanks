@@ -238,7 +238,7 @@ void display_record(int id, int* row) {
 
 /* Shift the screen of displayed records up. */
 void shift_up(void) {
-    int row = ROWS - 2;
+    int row = ROWS - 3 + records[selected].body_lines;
 
     xt_par2(XT_SET_ROW_COL_POS, HEADER_OFFSET, 1);
     xt_par1(XT_DELETE_LINES, 1);
@@ -250,7 +250,7 @@ void shift_up(void) {
 void shift_down(void) {
     int row = HEADER_OFFSET;
 
-    xt_par2(XT_SET_ROW_COL_POS, ROWS - 2, 1);
+    xt_par2(XT_SET_ROW_COL_POS, ROWS - 3 + records[selected].body_lines, 1);
     xt_par1(XT_DELETE_LINES, 1);
     max_shown--;
     xt_par2(XT_SET_ROW_COL_POS, row, 1);
