@@ -525,6 +525,37 @@ int editbox_input(char* subject, char* body) {
                     textpos = 0;
                 }
                 break;
+            case KEY_DELETE:
+                // Move cursor to the right 1 space
+                if (cursorpos) { // body
+                    if (textpos == bodypos){
+                        break;
+                    }
+                } else { // subject
+                    if (textpos == subjpos){
+                        break;
+                    }
+                }
+                if (cursorpos) {
+                    if (textpos >= bodypos)
+                        break;
+                }
+                else if (textpos >= subjpos)
+                    break;
+                if (cursorc > 68 && cursorr == 11)
+                    break;
+                else if (cursorc > 69 && cursorr < 11) {
+                    cursorc = 23;
+                    cursorr++;
+                    textpos++;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                }
+                else {
+                    cursorc++;
+                    textpos++;
+                    xt_par2(XT_SET_ROW_COL_POS, cursorr, cursorc);
+                }    
+
             case KEY_BACKSPACE:
                 i = 0;
                 if (cursorc >= 23) {
