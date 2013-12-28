@@ -53,7 +53,8 @@ void loop(void) {
                 break;
             case KEY_DELETE:
             case KEY_BACKSPACE:
-                delete_entry();
+                if (n_records > 0) 
+                    delete_entry();
                 break;
             case 'h':
                 // TODO
