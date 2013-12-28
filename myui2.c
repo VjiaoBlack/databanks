@@ -980,7 +980,7 @@ void display_helpmenu(int page) {
         xt_par2(XT_SET_ROW_COL_POS, 15, 9);
         printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
         xt_par2(XT_SET_ROW_COL_POS, 16, 9);
-        printf("  %s * We hope you enjoy using databanks!                       %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        printf("  %s            Next page: info about find and goto             %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
         xt_par2(XT_SET_ROW_COL_POS, 17, 9);
         printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
         xt_par2(XT_SET_ROW_COL_POS, 18, 9);
@@ -988,7 +988,40 @@ void display_helpmenu(int page) {
         xt_par2(XT_SET_ROW_COL_POS, 19, 9);
         printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
         xt_par2(XT_SET_ROW_COL_POS, 20, 9);
-        printf("                            PAGE %d/2                            \n", page);
+        printf("                            PAGE %d/3                            \n", page);
+        printf(XT_CH_NORMAL);
+    } else if (page == 3) {
+        xt_par2(XT_SET_ROW_COL_POS, 6, 9);
+        printf(XT_CH_INVERSE);
+        printf("                           HELP MENU                            \n");
+        xt_par2(XT_SET_ROW_COL_POS, 7, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 8, 9);
+        printf("  %s * Find: Type in your search query to search all the subj-  %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 9, 9);
+        printf("  %s   ects in your database. Then, databanks will highlight    %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 10, 9);
+        printf("  %s   the first match. If you press 'f' again, you will see    %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 11, 9);
+        printf("  %s   your last query. Press 'Enter' to then search for the    %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 12, 9);
+        printf("  %s   next match.                                              %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 13, 9);
+        printf("  %s * Go To: Type in your desired entry ID, and databanks      %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 14, 9);
+        printf("  %s   will highlight it for you. It's as easy as that!         %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 15, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 16, 9);
+        printf("  %s            We hope you enjoy using databanks!              %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 17, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 18, 9);
+        printf("  %s     %s[Arrow Keys]%s Navigate Pages            %s[F5]%s Back       %s  \n", XT_CH_NORMAL, KEY_COLOR, KEY_COLOR, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 19, 9);
+        printf("  %s                                                            %s  \n", XT_CH_NORMAL, XT_CH_INVERSE);
+        xt_par2(XT_SET_ROW_COL_POS, 20, 9);
+        printf("                            PAGE %d/3                            \n", page);
         printf(XT_CH_NORMAL);
     }
 
@@ -1004,7 +1037,7 @@ void helpmenu_run(void) {
             case KEY_F5:
                 return;
             case KEY_RIGHT:
-                if (page < 2) {
+                if (page < 3) {
                     page++;
                     display_helpmenu(page);
                 }
