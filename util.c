@@ -36,7 +36,7 @@ int ReadMystoreFromChild (char* argv1, char* argv2, char* argv3, char* argv4) {
 			newargv[i] = NULL;
 		}
 
-		newargv[0] = "./mystore";
+		newargv[0] = "~/custom/databankdata/mystore"; // NOTE: THIS IS REQUIRED FOR BASHRC
 		newargv[1] = argv1;
 		newargv[2] = argv2;
 		newargv[3] = argv3;
