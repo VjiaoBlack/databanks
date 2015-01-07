@@ -4,9 +4,13 @@ LINK=gcc -g -O2 -Wall
 # General
 
 all: mystore myui2
+	cp mystore ~/custom/databankdata/mystore
+	cp myui2 ~/custom/databanks
 
 clean:
 	rm -rf build mystore myui2
+	rm ~/custom/databankdata/mystore
+	rm ~/custom/databanks
 
 build:
 	mkdir build
